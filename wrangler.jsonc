@@ -1,0 +1,14 @@
+{
+  // Cloudflare Worker + Static Assets – Deploy: npm run deploy
+  // Secrets: SITE_PASSWORD, AUTH_SECRET, SUPABASE_URL, SUPABASE_ANON_KEY (siehe worker/index.js)
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wedding-jenny-finn",
+  "main": "./worker/index.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // Jede Anfrage läuft zuerst durch den Worker – sonst wäre der Passwortschutz umgehbar
+    "run_worker_first": true
+  }
+}

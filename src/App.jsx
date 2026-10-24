@@ -1,122 +1,98 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useRef, useState } from 'react'
+import Invitation from './components/Invitation.jsx'
+import Rsvp from './components/Rsvp.jsx'
+import Schedule from './components/Schedule.jsx'
+import Info from './components/Info.jsx'
+import Facts from './components/Facts.jsx'
+import { Backdrop } from './components/Botanical.jsx'
 
-function App() {
-  const [count, setCount] = useState(0)
+const TABS = [
+  { id: 'rsvp', label: 'Rückmeldung', Panel: Rsvp },
+  { id: 'ablauf', label: 'Ablauf', Panel: Schedule },
+  { id: 'infos', label: 'Weitere Infos', Panel: Info },
+]
+
+const tabFromHash = () => TABS.find((t) => `#${t.id}` === window.location.hash)?.id ?? TABS[0].id
+
+export default function App() {
+  const [active, setActive] = useState(tabFromHash)
+  const anchorRef = useRef(null)
+  const tabRefs = useRef({})
+
+  // Steht das Menüband oben fest, zum Anfang des neuen Inhalts springen
+  const scrollToContent = (force = false) => {
+    const top = anchorRef.current.getBoundingClientRect().top + window.scrollY
+    if (force || window.scrollY > top) window.scrollTo({ top, behavior: force ? 'smooth' : 'instant' })
+  }
+
+  // Vor/Zurück im Browser und geteilte Links wie "#ablauf"
+  useEffect(() => {
+    const onHash = () => {
+      setActive(tabFromHash())
+      requestAnimationFrame(() => scrollToContent(true))
+    }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  const select = (id, force = false) => {
+    setActive(id)
+    history.replaceState(null, '', `#${id}`)
+    scrollToContent(force)
+  }
+
+  const onKeyDown = (e) => {
+    const i = TABS.findIndex((t) => t.id === active)
+    const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: TABS.length - 1 }[e.key]
+    if (next === undefined) return
+    e.preventDefault()
+    const id = TABS[(next + TABS.length) % TABS.length].id
+    select(id)
+    tabRefs.current[id].focus()
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="page">
+      <Backdrop />
 
-      <div className="ticks"></div>
+      <Invitation />
+      <Facts onRsvp={() => select('rsvp', true)} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      <div ref={anchorRef} />
+      <nav className="tabs" aria-label="Inhalte">
+        <div className="tabs-inner" role="tablist" onKeyDown={onKeyDown}>
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              ref={(el) => (tabRefs.current[t.id] = el)}
+              type="button"
+              role="tab"
+              id={`tab-${t.id}`}
+              aria-controls={t.id}
+              aria-selected={active === t.id}
+              tabIndex={active === t.id ? 0 : -1}
+              className="tab"
+              onClick={() => select(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </nav>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <main className="panels">
+        {/* Alle Panels bleiben gemountet, damit Formulareingaben beim Wechseln erhalten bleiben */}
+        {TABS.map(({ id, Panel }) => (
+          <div key={id} id={id} role="tabpanel" aria-labelledby={`tab-${id}`} hidden={active !== id} className="panel-view">
+            <Panel />
+          </div>
+        ))}
+      </main>
+
+      <footer className="footer">
+        <p className="footer-names">Jenny &amp; Finn</p>
+        <p>Wir freuen uns auf euch · 29.05.2027</p>
+      </footer>
+    </div>
   )
 }
-
-export default App
