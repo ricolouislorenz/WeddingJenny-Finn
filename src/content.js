@@ -1,7 +1,7 @@
 // Alle Texte der Seite an einem Ort – hier anpassen.
 
-// Beginn (Uhrzeit bitte prüfen) – steuert Countdown, "Beginn" und Kalendereintrag
-export const WEDDING_DATE = new Date('2027-05-29T14:00:00+02:00')
+// Beginn (Ankommen) – steuert Countdown und Kalendereintrag
+export const WEDDING_DATE = new Date('2027-05-29T15:00:00+02:00')
 // Ende für den Kalendereintrag
 export const WEDDING_END = new Date('2027-05-30T02:00:00+02:00')
 
@@ -14,11 +14,17 @@ export const welcome =
 export const venue = {
   name: 'Mein Forsthaus',
   place: 'Lübeck-Travemünde',
-  mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Mein+Forsthaus+Waldhusen+L%C3%BCbeck',
+  street: 'Waldhusener Weg 30',
+  city: '23569 Lübeck',
+  fullName: 'Mein Forsthaus Waldhusen',
+  description: 'Idyllisch im Wald zwischen Lübeck und Travemünde gelegen.',
+  // öffnet direkt die Routenplanung in Google Maps (App oder Browser)
+  mapsUrl:
+    'https://www.google.com/maps/dir/?api=1&destination=Mein+Forsthaus+Waldhusen%2C+Waldhusener+Weg+30%2C+23569+L%C3%BCbeck',
 }
 
 export const menus = [
-  { value: 'carnivor', label: 'Carnivor' },
+  { value: 'carnivor', label: 'Fleisch' },
   { value: 'pescetarisch', label: 'Pescetarisch' },
   { value: 'vegetarisch', label: 'Vegetarisch' },
   { value: 'vegan', label: 'Vegan' },
@@ -27,12 +33,10 @@ export const menus = [
 // Ablauf des Tages – Zeiten & Texte nach Bedarf anpassen
 // icon: rings | glass | cake | camera | dinner | music
 export const schedule = [
-  { time: '14:00', icon: 'glass', title: 'Ankommen', text: 'Empfang mit einem Glas Sekt im Garten des Forsthauses.' },
-  { time: '14:30', icon: 'rings', title: 'Freie Trauung', text: 'Wir sagen Ja – unter freiem Himmel.' },
-  { time: '15:30', icon: 'cake', title: 'Kaffee & Kuchen', text: 'Gratulationen, Torte und Zeit zum Ankommen.' },
-  { time: '17:00', icon: 'camera', title: 'Fotos & Sektempfang', text: 'Gruppenfotos und Zeit für Gespräche.' },
-  { time: '18:30', icon: 'dinner', title: 'Abendessen', text: 'Gemeinsames Dinner im Forsthaus.' },
-  { time: '21:00', icon: 'music', title: 'Party', text: 'Eröffnungstanz – danach gehört die Tanzfläche euch.' },
+  { time: '15:00', icon: 'glass', title: 'Ankommen', text: 'Wir freuen uns, euch im Forsthaus zu begrüßen.' },
+  { time: '15:30', icon: 'rings', title: 'Trauung', text: 'Wir sagen Ja.' },
+  { time: '16:30', icon: 'cake', title: 'Kaffee & Kuchen', text: 'Zeit für Glückwünsche, Torte und Gespräche.' },
+  { time: '19:00', icon: 'dinner', title: 'Buffet', text: 'Gemeinsames Essen – danach wird gefeiert.' },
 ]
 
 // Häufige Fragen – BEISPIELE, bitte durch eure echten Antworten ersetzen
@@ -43,7 +47,7 @@ export const faqs = [
   },
   {
     q: 'Gibt es Parkplätze vor Ort?',
-    a: 'Ja, direkt am Forsthaus gibt es Parkplätze. Wer feiern möchte, kann das Auto auch gern stehen lassen und mit dem Taxi nach Hause fahren.',
+    a: 'Ja, direkt am Forsthaus gibt es Parkplätze. Wer feiern möchte, kann das Auto auch gern stehen lassen und mit dem Taxi nach Hause fahren. Wichtig: Alle Autos müssen am nächsten Tag bis 12 Uhr abgeholt sein.',
   },
   {
     q: 'Wo können wir übernachten?',
@@ -59,21 +63,18 @@ export const faqs = [
   },
 ]
 
+// Themenblöcke unter "Weitere Infos" (Location kommt aus venue)
 export const infos = [
   {
     icon: 'dress',
-    title: 'Dresscode',
-    text: 'Festlich-sommerlich. Gerne in sanften Grün-, Salbei- und Naturtönen – bitte kein Weiß, das ist der Braut vorbehalten.',
+    label: 'Dresscode',
+    title: 'Festlich-sommerlich',
+    text: 'Gerne kreativ – aber bitte keine Jeans und keine T-Shirts.',
   },
   {
     icon: 'shoe',
-    title: 'Schuhwerk',
+    label: 'Schuhwerk',
+    title: 'Bequem im Grünen',
     text: 'Die Trauung findet im Grünen statt. Pfennigabsätze versinken im Rasen – Blockabsätze oder flache Schuhe sind die bessere Wahl. Für die Tanzfläche gerne ein zweites Paar einpacken.',
-  },
-  {
-    icon: 'pin',
-    title: 'Location',
-    text: 'Mein Forsthaus liegt idyllisch im Wald zwischen Lübeck und Travemünde – nur wenige Minuten von der Ostsee entfernt.',
-    link: { href: venue.mapsUrl, label: 'Route planen' },
   },
 ]

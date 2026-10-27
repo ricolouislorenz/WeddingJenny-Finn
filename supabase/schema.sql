@@ -12,11 +12,15 @@ create table if not exists public.rsvps (
   attending   boolean not null,
   menu        text check (menu in ('carnivor', 'pescetarisch', 'vegetarisch', 'vegan')),
   allergies   text not null default '' check (char_length(allergies) <= 500),
+  wish        text not null default '' check (char_length(wish) <= 500),
   companions  jsonb not null default '[]'::jsonb check (jsonb_typeof(companions) = 'array'),
   message     text not null default '' check (char_length(message) <= 2000),
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
+
+-- für bestehende Datenbanken: Spalte "Essenswunsch" nachrüsten
+alter table public.rsvps add column if not exists wish text not null default '' check (char_length(wish) <= 500);
 
 alter table public.rsvps enable row level security;
 -- Keine Policies => anon/authenticated haben keinen direkten Tabellenzugriff.
@@ -60,6 +64,7 @@ as $$
     'attending', r.attending,
     'menu', r.menu,
     'allergies', r.allergies,
+    'wish', r.wish,
     'companions', r.companions,
     'message', r.message,
     'updated_at', r.updated_at
@@ -69,11 +74,13 @@ as $$
 $$;
 
 -- Rückmeldung anlegen oder (bei bekanntem Namen) aktualisieren
+drop function if exists public.upsert_rsvp(text, boolean, text, text, jsonb, text);
 create or replace function public.upsert_rsvp(
   p_name        text,
   p_attending   boolean,
   p_menu        text,
   p_allergies   text,
+  p_wish        text,
   p_companions  jsonb,
   p_message     text
 )
@@ -113,18 +120,20 @@ begin
       v_comp := v_comp || jsonb_build_array(jsonb_build_object(
         'name', left(trim(v_item->>'name'), 80),
         'menu', v_item->>'menu',
-        'allergies', left(coalesce(v_item->>'allergies', ''), 500)
+        'allergies', left(coalesce(v_item->>'allergies', ''), 500),
+        'wish', left(coalesce(v_item->>'wish', ''), 500)
       ));
     end loop;
   end if;
 
-  insert into public.rsvps as r (name, name_key, attending, menu, allergies, companions, message)
+  insert into public.rsvps as r (name, name_key, attending, menu, allergies, wish, companions, message)
   values (
     left(trim(p_name), 80),
     v_key,
     p_attending,
     case when p_attending then p_menu end,
     case when p_attending then left(coalesce(p_allergies, ''), 500) else '' end,
+    case when p_attending then left(coalesce(p_wish, ''), 500) else '' end,
     v_comp,
     left(coalesce(p_message, ''), 2000)
   )
@@ -133,6 +142,7 @@ begin
     attending  = excluded.attending,
     menu       = excluded.menu,
     allergies  = excluded.allergies,
+    wish       = excluded.wish,
     companions = excluded.companions,
     message    = excluded.message,
     updated_at = now()
@@ -143,18 +153,20 @@ end;
 $$;
 
 revoke all on function public.get_rsvp(text) from public;
-revoke all on function public.upsert_rsvp(text, boolean, text, text, jsonb, text) from public;
+revoke all on function public.upsert_rsvp(text, boolean, text, text, text, jsonb, text) from public;
 grant execute on function public.get_rsvp(text) to anon, authenticated;
-grant execute on function public.upsert_rsvp(text, boolean, text, text, jsonb, text) to anon, authenticated;
+grant execute on function public.upsert_rsvp(text, boolean, text, text, text, jsonb, text) to anon, authenticated;
 
 -- Praktische Übersicht für euch (nur im Dashboard / mit service_role sichtbar)
-create or replace view public.rsvp_overview
+drop view if exists public.rsvp_overview;
+create view public.rsvp_overview
 with (security_invoker = true) as
 select
   r.name,
   r.attending,
   r.menu,
   r.allergies,
+  r.wish,
   case when r.attending then 1 + jsonb_array_length(r.companions) else 0 end as persons,
   r.companions,
   r.message,

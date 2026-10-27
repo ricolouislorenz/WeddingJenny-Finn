@@ -1,4 +1,4 @@
-import { faqs, infos } from '../content.js'
+import { faqs, infos, venue } from '../content.js'
 import { Icon } from './Icons.jsx'
 
 export default function Info() {
@@ -8,24 +8,40 @@ export default function Info() {
         <h2 id="infos-title">Weitere Infos</h2>
         <p className="sub">Alles, was ihr für den Tag wissen solltet</p>
       </div>
-      <div className="info-list">
+
+      <div className="details">
         {infos.map((info) => (
-          <article className="info" key={info.title}>
-            <Icon name={info.icon} className="info-icon" />
-            <div>
-              <h3>{info.title}</h3>
-              <p>{info.text}</p>
-              {info.link && (
-                <a className="link" href={info.link.href} target="_blank" rel="noopener noreferrer">
-                  {info.link.label} →
-                </a>
-              )}
-            </div>
+          <article className="detail" key={info.label}>
+            <span className="detail-icon">
+              <Icon name={info.icon} />
+            </span>
+            <p className="kicker">{info.label}</p>
+            <h3>{info.title}</h3>
+            <p>{info.text}</p>
           </article>
         ))}
       </div>
 
+      {/* Location als eigene kleine Karte – wie die Anfahrtskarte einer gedruckten Einladung */}
+      <article className="venue">
+        <span className="detail-icon">
+          <Icon name="pin" />
+        </span>
+        <p className="kicker">Location</p>
+        <h3>{venue.fullName}</h3>
+        <address>
+          {venue.street}
+          <br />
+          {venue.city}
+        </address>
+        <p className="venue-note">{venue.description}</p>
+        <a className="button" href={venue.mapsUrl} target="_blank" rel="noopener noreferrer">
+          <Icon name="pin" /> Route planen
+        </a>
+      </article>
+
       <div className="faq">
+        <p className="kicker">Gut zu wissen</p>
         <h3 className="faq-title">Häufige Fragen</h3>
         {faqs.map((f) => (
           <details key={f.q}>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { getRsvp, saveRsvp } from '../lib/api.js'
 import { RSVP_DEADLINE } from '../content.js'
 import { Icon } from './Icons.jsx'
-import { Choice, MenuPicker } from './Choices.jsx'
+import { Choice, MealFields } from './Choices.jsx'
 
 const NAME_KEY = 'jf-rsvp-name'
 
@@ -24,6 +24,7 @@ const newCompanion = (c = {}) => ({
   name: c.name || '',
   menu: c.menu || '',
   allergies: c.allergies || '',
+  wish: c.wish || '',
 })
 
 const emptyForm = () => ({
@@ -31,6 +32,7 @@ const emptyForm = () => ({
   attending: null,
   menu: '',
   allergies: '',
+  wish: '',
   companions: [],
   message: '',
 })
@@ -58,6 +60,7 @@ export default function Rsvp() {
           attending: existing.attending,
           menu: existing.menu || '',
           allergies: existing.allergies || '',
+          wish: existing.wish || '',
           companions: (existing.companions || []).map(newCompanion),
           message: existing.message || '',
         })
@@ -96,7 +99,7 @@ export default function Rsvp() {
       await saveRsvp({
         ...form,
         name,
-        companions: form.companions.map(({ name, menu, allergies }) => ({ name: cleanName(name), menu, allergies })),
+        companions: form.companions.map(({ name, menu, allergies, wish }) => ({ name: cleanName(name), menu, allergies, wish })),
       })
       storage.set(name)
       lastLookup.current = nameKey(name)
@@ -183,15 +186,7 @@ export default function Rsvp() {
 
             <div className="person">
               <h3 className="person-title">{cleanName(form.name) || '1. Person'}</h3>
-              <MenuPicker value={form.menu} onChange={(menu) => update({ menu })} />
-              <input
-                type="text"
-                aria-label="Allergien & Unverträglichkeiten (1. Person)"
-                maxLength={500}
-                value={form.allergies}
-                onChange={(e) => update({ allergies: e.target.value })}
-                placeholder="Allergien / Unverträglichkeiten"
-              />
+              <MealFields person={form} onChange={update} who="1. Person" />
             </div>
 
             {form.companions.map((c, i) => (
@@ -216,15 +211,7 @@ export default function Rsvp() {
                   onChange={(e) => updateCompanion(c.key, { name: e.target.value })}
                   placeholder="Vor- und Nachname"
                 />
-                <MenuPicker value={c.menu} onChange={(menu) => updateCompanion(c.key, { menu })} />
-                <input
-                  type="text"
-                  aria-label={`Allergien & Unverträglichkeiten (${i + 2}. Person)`}
-                  maxLength={500}
-                  value={c.allergies}
-                  onChange={(e) => updateCompanion(c.key, { allergies: e.target.value })}
-                  placeholder="Allergien / Unverträglichkeiten"
-                />
+                <MealFields person={c} onChange={(patch) => updateCompanion(c.key, patch)} who={`${i + 2}. Person`} />
               </div>
             ))}
 

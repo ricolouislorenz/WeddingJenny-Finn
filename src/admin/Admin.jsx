@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Icon } from '../components/Icons.jsx'
-import { Choice, MenuPicker } from '../components/Choices.jsx'
+import { Choice, MealFields } from '../components/Choices.jsx'
 import { createGuest, deleteGuest, listGuests, logout, updateGuest } from './adminApi.js'
 import { downloadCsv, menuLabel, personsOf, stats } from './guests.js'
 import './admin.css'
@@ -42,7 +42,7 @@ export default function Admin() {
       if (filter === 'yes' && !g.attending) return false
       if (filter === 'no' && g.attending) return false
       if (!q) return true
-      return [g.name, g.message, g.allergies, ...(g.companions || []).map((c) => c.name)].some((v) =>
+      return [g.name, g.message, g.allergies, g.wish, ...(g.companions || []).flatMap((c) => [c.name, c.allergies, c.wish])].some((v) =>
         v?.toLowerCase().includes(q),
       )
     })
@@ -109,7 +109,7 @@ export default function Admin() {
         <input
           type="search"
           className="search"
-          placeholder="Suchen nach Name, Allergie, Nachricht …"
+          placeholder="Suchen nach Name, Essenswunsch, Allergie …"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           aria-label="Gästeliste durchsuchen"
@@ -186,7 +186,10 @@ function GuestRow({ guest: g, onEdit }) {
             <li key={i}>
               <span>{p.name}</span>
               <span className="muted">{menuLabel(p.menu)}</span>
-              {p.allergies?.trim() && <span className="allergy">{p.allergies}</span>}
+              <span className="notes">
+                {p.wish?.trim() && <span className="wish">{p.wish}</span>}
+                {p.allergies?.trim() && <span className="allergy">{p.allergies}</span>}
+              </span>
             </li>
           ))}
         </ul>
@@ -205,7 +208,7 @@ function GuestRow({ guest: g, onEdit }) {
 }
 
 let seq = 0
-const withKey = (c) => ({ key: ++seq, name: c.name || '', menu: c.menu || '', allergies: c.allergies || '' })
+const withKey = (c) => ({ key: ++seq, name: c.name || '', menu: c.menu || '', allergies: c.allergies || '', wish: c.wish || '' })
 
 function GuestEditor({ guest, onSave, onCancel, onDelete }) {
   const [form, setForm] = useState(() => ({
@@ -214,6 +217,7 @@ function GuestEditor({ guest, onSave, onCancel, onDelete }) {
     attending: guest?.attending ?? true,
     menu: guest?.menu || '',
     allergies: guest?.allergies || '',
+    wish: guest?.wish || '',
     companions: (guest?.companions || []).map(withKey),
     message: guest?.message || '',
   }))
@@ -239,7 +243,7 @@ function GuestEditor({ guest, onSave, onCancel, onDelete }) {
         name: form.name.trim(),
         menu: form.attending ? form.menu : null,
         companions: form.attending
-          ? form.companions.map(({ name, menu, allergies }) => ({ name: name.trim(), menu, allergies }))
+          ? form.companions.map(({ name, menu, allergies, wish }) => ({ name: name.trim(), menu, allergies, wish }))
           : [],
       })
     } catch (err) {
@@ -282,15 +286,7 @@ function GuestEditor({ guest, onSave, onCancel, onDelete }) {
         <div className="persons">
           <div className="person">
             <h3 className="person-title">{form.name.trim() || '1. Person'}</h3>
-            <MenuPicker value={form.menu} onChange={(menu) => update({ menu })} />
-            <input
-              type="text"
-              aria-label="Allergien"
-              placeholder="Allergien / Unverträglichkeiten"
-              maxLength={500}
-              value={form.allergies}
-              onChange={(e) => update({ allergies: e.target.value })}
-            />
+            <MealFields person={form} onChange={update} who="1. Person" />
           </div>
 
           {form.companions.map((c, i) => (
@@ -314,15 +310,7 @@ function GuestEditor({ guest, onSave, onCancel, onDelete }) {
                 value={c.name}
                 onChange={(e) => updateCompanion(c.key, { name: e.target.value })}
               />
-              <MenuPicker value={c.menu} onChange={(menu) => updateCompanion(c.key, { menu })} />
-              <input
-                type="text"
-                aria-label={`Allergien ${i + 2}. Person`}
-                placeholder="Allergien / Unverträglichkeiten"
-                maxLength={500}
-                value={c.allergies}
-                onChange={(e) => updateCompanion(c.key, { allergies: e.target.value })}
-              />
+              <MealFields person={c} onChange={(patch) => updateCompanion(c.key, patch)} who={`${i + 2}. Person`} />
             </div>
           ))}
 

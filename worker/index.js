@@ -18,7 +18,7 @@ const PUBLIC_PATHS = [/^\/login(\/|\/index\.html)?$/, /^\/fonts\//, /^\/favicon\
 const RPC = { get: 'get_rsvp', save: 'upsert_rsvp' }
 
 // Felder, die der Admin-Bereich schreiben darf
-const ADMIN_FIELDS = ['name', 'attending', 'menu', 'allergies', 'companions', 'message']
+const ADMIN_FIELDS = ['name', 'attending', 'menu', 'allergies', 'wish', 'companions', 'message']
 
 const encoder = new TextEncoder()
 
@@ -116,7 +116,7 @@ async function relay(res) {
 
 function adminPayload(body) {
   const data = Object.fromEntries(ADMIN_FIELDS.filter((k) => k in body).map((k) => [k, body[k]]))
-  if (data.attending === false) Object.assign(data, { menu: null, allergies: '', companions: [] })
+  if (data.attending === false) Object.assign(data, { menu: null, allergies: '', wish: '', companions: [] })
   return data
 }
 

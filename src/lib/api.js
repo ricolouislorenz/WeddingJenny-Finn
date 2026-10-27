@@ -35,6 +35,7 @@ export const saveRsvp = (r) =>
     p_attending: r.attending,
     p_menu: r.attending ? r.menu : null,
     p_allergies: r.attending ? r.allergies : '',
+    p_wish: r.attending ? r.wish : '',
     p_companions: r.attending ? r.companions : [],
     p_message: r.message,
   })

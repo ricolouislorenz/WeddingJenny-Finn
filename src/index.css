@@ -18,7 +18,7 @@
   --leaf-2: var(--fern);
   --leaf-3: var(--stone);
 
-  --bg: #f4f2ea;
+  --bg: #f7f3ed; /* Papierton des Hintergrundbilds */
   --paper: #fcfbf7;
   --tint: #eef0e6;
   --line: #d9ddcd;
@@ -48,7 +48,7 @@
   box-sizing: border-box;
 }
 
-/* Hintergrundfarbe kommt von :root, damit die Zweige (z-index -1) sichtbar bleiben */
+/* Hintergrundfarbe kommt von :root, damit das Hintergrundbild (z-index -1) sichtbar bleibt */
 body {
   margin: 0;
   min-height: 100svh;
@@ -98,40 +98,15 @@ a {
   }
 }
 
-/* ---------- Hintergrund-Zweige ---------- */
+/* ---------- Hintergrund ---------- */
 
+/* Eigenes festes Element statt background-attachment: fixed (auf iOS unzuverlässig) */
 .backdrop {
-  display: none;
-}
-
-@media (min-width: 700px) {
-  .backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .backdrop svg {
-    position: absolute;
-    width: clamp(260px, 30vw, 500px);
-    height: auto;
-    opacity: 0.4;
-    mix-blend-mode: multiply;
-  }
-
-  .backdrop-tl {
-    top: -30px;
-    left: -30px;
-  }
-
-  .backdrop-br {
-    right: -30px;
-    bottom: -30px;
-    transform: rotate(180deg);
-  }
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url('./assets/hintergrund.webp') center / cover no-repeat var(--bg);
 }
 
 /* ---------- Willkommen & Countdown ---------- */
@@ -202,182 +177,51 @@ a {
 
 /* ---------- Einladung ---------- */
 
-/* Die Karte ist ein Container: alles darin skaliert mit ihrer Breite (cqi) wie eine gedruckte Karte */
+/* Die Karte ist ein Container: Linkfläche und Schrift skalieren mit ihrer Breite (cqi) */
 .invitation {
-  --card: #fdfcf8;
-  --gold: #b8965a;
-  --gold-foil: linear-gradient(135deg, #d9c08a, #b08c50 30%, #e6d2a0 52%, #a8854c 75%, #d4b97e);
-  --corner: clamp(40px, 12cqi, 64px);
-  --frame-outer: calc(5px + var(--corner) * 6 / 56);
-  --frame-inner: calc(5px + var(--corner) * 11 / 56);
-
   container-type: inline-size;
   position: relative;
-  aspect-ratio: 3 / 2; /* Mindesthöhe – wächst auf sehr schmalen Displays mit */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: var(--ink);
-  /* Glanz nur mittig, damit die Ecken exakt --card bleiben (Ornament-Hintergrund) */
-  background: radial-gradient(ellipse 55% 50% at 50% 42%, #fff, transparent) var(--card);
   border-radius: 4px;
+  overflow: hidden;
   box-shadow:
     0 0 0 1px rgb(184 150 90 / 0.18),
     0 2px 4px rgb(69 91 70 / 0.06),
     0 24px 48px -20px rgb(69 91 70 / 0.4);
 }
 
-.frame {
-  position: absolute;
-  pointer-events: none;
-  border: 1px solid;
-  border-image: var(--gold-foil) 1;
-}
-
-.frame-outer {
-  inset: var(--frame-outer);
-}
-
-.frame-inner {
-  inset: var(--frame-inner);
-  border-width: 0.5px;
-  opacity: 0.75;
-}
-
-.flourish {
-  position: absolute;
-  width: var(--corner);
-  height: auto;
-  color: var(--gold);
-}
-
-.flourish-tl { top: 5px; left: 5px; }
-.flourish-tr { top: 5px; right: 5px; transform: scaleX(-1); }
-.flourish-bl { bottom: 5px; left: 5px; transform: scaleY(-1); }
-.flourish-br { bottom: 5px; right: 5px; transform: scale(-1); }
-
-/* kleine Rauten mittig auf dem Außenrahmen */
-.gem {
-  position: absolute;
-  left: 50%;
-  width: 7px;
-  height: 7px;
-  background: var(--card);
-  border: 1px solid var(--gold);
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.gem-top {
-  top: calc(var(--frame-outer) + 0.5px);
-}
-
-.gem-bottom {
-  top: calc(100% - var(--frame-outer) - 0.5px);
-}
-
-.invitation-content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.2cqi;
-  padding: 4.5cqi 12cqi 5.5cqi;
-  text-align: center;
-}
-
-.wreath {
-  position: relative;
-  width: 52cqi;
-  aspect-ratio: 240 / 200;
-}
-
-.wreath-art {
-  position: absolute;
-  inset: 0;
+.invitation-card {
+  display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
 }
 
-.leaves {
-  mix-blend-mode: multiply;
-}
-
-.couple {
+/* Klickfläche exakt über der Adresse im Bild, Hinweis darunter */
+.address {
   position: absolute;
-  inset: 25% 24% 30%;
-  display: grid;
-  align-content: center;
-  font-family: var(--script);
-  font-weight: 400;
-  font-size: 6.8cqi;
-  line-height: 1;
-}
-
-.couple-a {
-  justify-self: start;
-}
-
-.couple-und {
-  justify-self: center;
-  margin: 0.2cqi 0 0.4cqi 34%;
-  font-family: var(--sans);
-  font-size: 1.7cqi;
-  font-weight: 400;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-}
-
-.couple-b {
-  justify-self: center;
-  margin-left: 12%;
-}
-
-.eyebrow {
-  margin-top: 0.6cqi;
-  font-size: max(0.6rem, 2.2cqi);
-  font-weight: 400;
-  letter-spacing: 0.38em;
-  padding-left: 0.38em; /* optischer Ausgleich für letter-spacing */
-  text-transform: uppercase;
-}
-
-/* goldene Linie mit Raute */
-.divider {
-  position: relative;
-  width: 22cqi;
-  height: 1px;
-  margin-block: 0.4cqi;
-  background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
-}
-
-.divider::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 4px;
-  height: 4px;
-  background: var(--gold);
-  transform: translate(-50%, -50%) rotate(45deg);
-  box-shadow: 0 0 0 3px var(--card);
-}
-
-.when {
+  left: 33%;
+  top: 80%;
+  width: 34%;
+  height: 12%;
   display: flex;
-  flex-direction: column;
-  gap: 0.3cqi;
-  font-size: max(0.66rem, 2.2cqi);
-  letter-spacing: 0.06em;
-  opacity: 0.8;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.3cqi;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background-color 0.2s;
 }
 
-.when span {
-  font-size: max(0.72rem, 2.6cqi);
-  font-weight: 500;
-  letter-spacing: 0.24em;
+.address small {
+  font-size: max(0.5rem, 1.5cqi);
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  opacity: 1;
+  color: #9a7b45;
+}
+
+.address:hover,
+.address:focus-visible {
+  background: rgb(184 150 90 / 0.1);
 }
 
 /* ---------- Menüband ---------- */
@@ -389,7 +233,7 @@ a {
   margin-inline: -8px;
   padding: 8px;
   padding-top: max(8px, env(safe-area-inset-top));
-  background: linear-gradient(var(--bg) 70%, rgb(244 242 234 / 0));
+  background: linear-gradient(var(--bg) 70%, rgb(247 243 237 / 0));
 }
 
 .tabs-inner {
@@ -469,6 +313,14 @@ a {
   }
 }
 
+/* Überschriften der Karten zentriert, Formularfelder bleiben linksbündig (besser lesbar) */
+.panel-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
 .panel-head h2 {
   font-family: var(--script);
   font-weight: 400;
@@ -480,10 +332,10 @@ a {
 .panel-head::after {
   content: "";
   display: block;
-  width: 48px;
+  width: 64px;
   height: 1px;
   margin-top: 14px;
-  background: linear-gradient(90deg, #b8965a, transparent);
+  background: linear-gradient(90deg, transparent, #b8965a, transparent);
 }
 
 .deadline {
@@ -705,6 +557,19 @@ legend {
   font-size: 0.92rem;
 }
 
+/* kleine, sichtbare Feldbeschriftung innerhalb der Personenkarten */
+.mini-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mini-field > span {
+  font-size: 0.78rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
 /* ---------- Buttons ---------- */
 
 .button {
@@ -876,54 +741,108 @@ legend {
   font-size: 0.92rem;
 }
 
-/* ---------- Infos ---------- */
+/* ---------- Weitere Infos ---------- */
 
-.info-list {
-  display: flex;
-  flex-direction: column;
+/* kleine Überschrift in Großbuchstaben über Themenblöcken */
+.kicker {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  padding-left: 0.3em;
+  text-transform: uppercase;
+  color: #9a7b45;
 }
 
-.info {
+.details {
   display: grid;
-  grid-template-columns: 40px 1fr;
-  gap: 14px;
-  padding-block: 18px;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 26px 4px;
+  text-align: center;
+}
+
+.detail:first-child {
+  padding-top: 4px;
+}
+
+.detail + .detail {
   border-top: 1px solid var(--line);
 }
 
-.info:first-child {
-  padding-top: 0;
-  border-top: 0;
+.detail h3,
+.venue h3 {
+  font-family: var(--script);
+  font-weight: 400;
+  font-size: 1.75rem;
+  line-height: 1.2;
 }
 
-.info:last-child {
-  padding-bottom: 0;
+.detail p:last-child {
+  max-width: 36ch;
+  font-size: 0.95rem;
 }
 
-.info h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 2px;
-}
-
-.info p {
-  font-size: 0.92rem;
-}
-
-.info-icon {
-  width: 40px;
-  height: 40px;
-  padding: 9px;
+.detail-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 4px;
+  border: 1px solid rgb(184 150 90 / 0.55);
   border-radius: 50%;
-  background: var(--tint);
+  color: var(--ink);
 }
 
-.info .link {
-  display: inline-block;
-  margin-top: 8px;
-  font-weight: 600;
-  font-size: 0.92rem;
-  text-underline-offset: 3px;
+.detail-icon .icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Location als kleine Karte mit feinem Doppelrahmen */
+.venue {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 24px;
+  text-align: center;
+  background: #fdfcf8;
+  border: 1px solid rgb(184 150 90 / 0.55);
+  border-radius: 4px;
+}
+
+.venue::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgb(184 150 90 / 0.25);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.venue address {
+  font-style: normal;
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.venue-note {
+  max-width: 34ch;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.venue .button {
+  position: relative;
+  margin-top: 10px;
+  text-decoration: none;
 }
 
 /* ---------- FAQ ---------- */
@@ -931,10 +850,16 @@ legend {
 .faq {
   display: flex;
   flex-direction: column;
+  padding-top: 8px;
+}
+
+.faq > .kicker {
+  text-align: center;
 }
 
 .faq-title {
   margin-bottom: 6px;
+  text-align: center;
   font-family: var(--script);
   font-weight: 400;
   font-size: 1.7rem;
@@ -1014,33 +939,23 @@ legend {
 /* ---------- Breite Karten ---------- */
 
 /* Steht am Ende, damit es die Grundregeln oben überschreibt */
-/* Menüs in einer Reihe, Infos als Kacheln */
+/* Menüs in einer Reihe, Infos nebeneinander */
 @container (min-width: 500px) {
   .menu-list {
     grid-template-columns: repeat(4, 1fr);
   }
 
-  .info-list {
-    display: grid;
+  /* Dresscode & Schuhwerk nebeneinander, getrennt durch eine feine Goldlinie */
+  .details {
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
   }
 
-  .info,
-  .info:first-child,
-  .info:last-child {
-    grid-template-columns: 1fr;
-    align-content: start;
-    gap: 10px;
-    padding: 20px;
-    border: 0;
-    border-radius: 12px;
-    background: rgb(238 240 230 / 0.5);
+  .detail {
+    padding: 4px 20px 8px;
   }
 
-  .info:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-    grid-template-columns: 40px 1fr;
-    gap: 14px;
+  .detail + .detail {
+    border-top: 0;
+    border-left: 1px solid rgb(184 150 90 / 0.35);
   }
 }

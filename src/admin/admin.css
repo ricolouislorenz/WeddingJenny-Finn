@@ -269,6 +269,19 @@
   opacity: 0.75;
 }
 
+.notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wish {
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: var(--tint);
+  font-size: 0.85rem;
+}
+
 .allergy {
   justify-self: start;
   padding: 1px 8px;
@@ -282,7 +295,7 @@
     grid-template-columns: 1fr auto;
   }
 
-  .allergy {
+  .notes {
     grid-column: 1 / -1;
   }
 }
