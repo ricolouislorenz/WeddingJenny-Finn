@@ -96,12 +96,12 @@ declare
   v_new   boolean;
 begin
   if char_length(v_key) < 2 then
-    raise exception 'Bitte gib deinen vollständigen Namen an.';
+    raise exception 'Bitte gebt euren vollständigen Namen an.';
   end if;
 
   if p_attending then
     if p_menu is null then
-      raise exception 'Bitte wähle ein Menü aus.';
+      raise exception 'Bitte wählt ein Menü aus.';
     end if;
 
     if jsonb_typeof(coalesce(p_companions, '[]'::jsonb)) <> 'array'
@@ -112,10 +112,10 @@ begin
     -- Begleitpersonen auf erlaubte Felder reduzieren und prüfen
     for v_item in select * from jsonb_array_elements(coalesce(p_companions, '[]'::jsonb)) loop
       if char_length(trim(coalesce(v_item->>'name', ''))) < 2 then
-        raise exception 'Bitte gib für jede Begleitperson einen Namen an.';
+        raise exception 'Bitte gebt für jede Begleitperson einen Namen an.';
       end if;
       if coalesce(v_item->>'menu', '') not in ('carnivor', 'pescetarisch', 'vegetarisch', 'vegan') then
-        raise exception 'Bitte wähle für jede Begleitperson ein Menü aus.';
+        raise exception 'Bitte wählt für jede Begleitperson ein Menü aus.';
       end if;
       v_comp := v_comp || jsonb_build_array(jsonb_build_object(
         'name', left(trim(v_item->>'name'), 80),

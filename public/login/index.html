@@ -5,43 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Jenny &amp; Finn · Willkommen</title>
     <meta name="robots" content="noindex, nofollow" />
-    <meta name="theme-color" content="#f4f2ea" />
+    <meta name="theme-color" content="#f7f3ed" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preload" href="/fonts/roboto-condensed-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/augustromascript.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jost-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/cormorant-garamond-latin-wght-italic.woff2" as="font" type="font/woff2" crossorigin />
     <style>
       /* Eigenständige Anmeldeseite – bewusst ohne App-Bundle, damit vor dem Login nichts geladen wird */
+      /* gleiche Schriften wie die Hauptseite (src/index.css) */
       @font-face {
-        font-family: 'August Roma Script';
-        src: url('/fonts/augustromascript.woff2') format('woff2'), url('/fonts/augustromascript.otf') format('opentype');
+        font-family: 'Cormorant Garamond';
+        src: url('/fonts/cormorant-garamond-latin-wght-italic.woff2') format('woff2');
+        font-weight: 300 700;
+        font-style: italic;
         font-display: swap;
       }
       @font-face {
-        font-family: 'Roboto Condensed Variable';
-        src: url('/fonts/roboto-condensed-latin.woff2') format('woff2-variations');
-        font-weight: 100 900;
+        font-family: 'Jost';
+        src: url('/fonts/jost-latin-wght-normal.woff2') format('woff2');
+        font-weight: 300 700;
         font-display: swap;
       }
 
       :root {
-        --ink: #455b46;
-        --sage: #889e83;
+        /* Farben wie in src/index.css */
+        --ink: #3f5442;
+        --ink-strong: #32443a;
+        --ink-soft: #5c6d5d;
         --moss: #8ca078;
-        --stone: #a0a08c;
-        --fern: #a0b48c;
-        --bg: #f4f2ea;
-        --paper: #fcfbf7;
+        --bg: #f7f3ed;
+        --paper: #fdfcf8;
         --tint: #eef0e6;
-        --line: #d9ddcd;
+        --line: #dfe2d4;
         --gold: #b8965a;
+        --gold-text: #846a3d;
         --error: #9b3d2e;
-        --script: 'August Roma Script', 'Snell Roundhand', 'Brush Script MT', Georgia, serif;
-        --sans: 'Roboto Condensed Variable', 'Roboto Condensed', 'Arial Narrow', system-ui, sans-serif;
+        --serif: 'Cormorant Garamond', Garamond, 'Times New Roman', serif;
+        --sans: 'Jost', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
 
         color-scheme: light;
         font-family: var(--sans);
         font-size: 16px;
-        line-height: 1.55;
+        line-height: 1.6;
         color: var(--ink);
         background: var(--bg);
         -webkit-text-size-adjust: 100%;
@@ -74,28 +78,31 @@
 
       h1 {
         margin: 0;
-        font-family: var(--script);
-        font-weight: 400;
-        font-size: clamp(2.6rem, 12vw, 3.4rem);
+        font-family: var(--serif);
+        font-style: italic;
+        font-weight: 500;
+        font-size: clamp(3rem, 14vw, 3.8rem);
         line-height: 1.05;
       }
 
       h1 span {
-        color: var(--moss);
+        color: var(--gold);
       }
 
       .eyebrow {
         margin: 0 0 6px;
         font-size: 0.72rem;
-        letter-spacing: 0.36em;
-        padding-left: 0.36em;
+        font-weight: 500;
+        letter-spacing: 0.3em;
+        padding-left: 0.3em;
         text-transform: uppercase;
+        color: var(--gold-text);
       }
 
       .intro {
         margin: 8px auto 0;
         max-width: 32ch;
-        font-weight: 300;
+        color: var(--ink-soft);
       }
 
       form {
@@ -107,8 +114,8 @@
 
       label {
         font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.18em;
+        font-weight: 500;
+        letter-spacing: 0.2em;
         text-transform: uppercase;
       }
 
@@ -133,7 +140,7 @@
       input:focus {
         outline: none;
         border-color: var(--moss);
-        box-shadow: 0 0 0 3px rgb(140 160 120 / 0.22);
+        box-shadow: 0 0 0 3px rgb(140 160 120 / 0.25);
       }
 
       .toggle {
@@ -169,8 +176,8 @@
         color: var(--paper);
         font: inherit;
         font-size: 0.8rem;
-        font-weight: 600;
-        letter-spacing: 0.2em;
+        font-weight: 500;
+        letter-spacing: 0.16em;
         text-transform: uppercase;
         cursor: pointer;
         transition: background-color 0.2s;
@@ -178,7 +185,7 @@
       }
 
       button[type='submit']:hover {
-        background: #384b39;
+        background: var(--ink-strong);
       }
 
       button:disabled {
@@ -321,7 +328,7 @@
           <rect x="66" y="56" width="208" height="190" rx="2" fill="#fdfcf8" />
           <rect x="73" y="63" width="194" height="176" fill="none" stroke="url(#foil)" stroke-width="0.9" />
           <rect x="77" y="67" width="186" height="168" fill="none" stroke="url(#foil)" stroke-width="0.5" opacity="0.6" />
-          <text x="170" y="84" text-anchor="middle" font-family="Roboto Condensed Variable, Arial Narrow, sans-serif" font-size="6.5" letter-spacing="2.6" fill="#455b46">EINLADUNG ZUR HOCHZEIT</text>
+          <text x="170" y="84" text-anchor="middle" font-family="Jost, Avenir Next, Segoe UI, sans-serif" font-size="6.5" letter-spacing="2.6" fill="#455b46">EINLADUNG ZUR HOCHZEIT</text>
           <g transform="translate(133 90) scale(0.31)" fill="none" stroke="url(#foil)" stroke-width="2.6" stroke-linejoin="round">
             <path d="M120 186 L22 80 L30 34 L76 12 L120 50 L164 12 L210 34 L218 80 Z" />
             <path d="M120 180 L28 74 L26 42 L64 20 L120 58 L176 20 L214 42 L212 74 Z" />
@@ -333,8 +340,8 @@
             <path d="M199 102 C203 96 201 90 196 88 C194 93 195 98 199 102Z" />
             <path d="M202 110 C209 108 211 102 209 98 C204 100 202 105 202 110Z" />
           </g>
-          <text x="170" y="167" text-anchor="middle" font-family="August Roma Script, Snell Roundhand, Brush Script MT, Georgia, serif" font-size="18" fill="#455b46">Jenny &amp; Finn</text>
-          <text x="170" y="182" text-anchor="middle" font-family="Roboto Condensed Variable, Arial Narrow, sans-serif" font-size="7" letter-spacing="2" fill="#455b46">29. MAI 2027</text>
+          <text x="170" y="167" text-anchor="middle" font-family="Cormorant Garamond, Garamond, serif" font-style="italic" font-size="22" fill="#455b46">Jenny &amp; Finn</text>
+          <text x="170" y="182" text-anchor="middle" font-family="Jost, Avenir Next, Segoe UI, sans-serif" font-size="7" letter-spacing="2" fill="#455b46">29. MAI 2027</text>
         </g>
 
         <!-- Vorderseite: Seitenlaschen und untere Lasche -->
@@ -350,7 +357,7 @@
         <g transform="translate(170 222)">
           <circle r="19" fill="url(#wax)" />
           <circle r="14.5" fill="none" stroke="#fcfbf7" stroke-opacity="0.3" stroke-width="0.8" />
-          <text y="5" text-anchor="middle" font-family="August Roma Script, Snell Roundhand, Brush Script MT, Georgia, serif" font-size="12" fill="#e9efe2">J&amp;F</text>
+          <text y="5" text-anchor="middle" font-family="Cormorant Garamond, Garamond, serif" font-style="italic" font-size="14" fill="#e9efe2">J&amp;F</text>
         </g>
       </svg>
     </main>
@@ -374,7 +381,7 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault()
         if (!input.value.trim()) {
-          error.textContent = 'Bitte gib das Passwort ein.'
+          error.textContent = 'Bitte gebt das Passwort ein.'
           return input.focus()
         }
 

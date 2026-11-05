@@ -5,11 +5,12 @@ import Schedule from './components/Schedule.jsx'
 import Info from './components/Info.jsx'
 import Facts from './components/Facts.jsx'
 import { Backdrop } from './components/Botanical.jsx'
+import { WEDDING_DATE_LABEL } from './content.js'
 
 const TABS = [
   { id: 'rsvp', label: 'Rückmeldung', Panel: Rsvp },
   { id: 'ablauf', label: 'Ablauf', Panel: Schedule },
-  { id: 'infos', label: 'Weitere Infos', Panel: Info },
+  { id: 'infos', label: 'Infos', Panel: Info },
 ]
 
 const tabFromHash = () => TABS.find((t) => `#${t.id}` === window.location.hash)?.id ?? TABS[0].id
@@ -90,8 +91,9 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        <p className="footer-names">Jenny &amp; Finn</p>
-        <p>Wir freuen uns auf euch · 29.05.2027</p>
+        <div className="ornament" aria-hidden="true"><span /></div>
+        <p className="names">Jenny &amp; Finn</p>
+        <p>Wir freuen uns auf euch · {WEDDING_DATE_LABEL}</p>
       </footer>
     </div>
   )

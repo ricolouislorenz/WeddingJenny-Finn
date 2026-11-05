@@ -11,47 +11,55 @@ export function Choice({ name, checked, onChange, children }) {
   )
 }
 
-// Menü, Essenswunsch und Allergien einer Person
+// Menü, Essenshinweis und Allergien einer Person
 export function MealFields({ person, onChange, who }) {
   return (
     <>
-      <MenuPicker value={person.menu} onChange={(menu) => onChange({ menu })} />
+      <MenuPicker value={person.menu} onChange={(menu) => onChange({ menu })} who={who} />
       <label className="mini-field">
-        <span>Essenswunsch</span>
-        <input
-          type="text"
-          aria-label={`Essenswunsch (${who})`}
-          maxLength={500}
-          value={person.wish}
-          onChange={(e) => onChange({ wish: e.target.value })}
-          placeholder="optional, z. B. kleine Portion"
-        />
-      </label>
-      <label className="mini-field">
-        <span>Allergien & Unverträglichkeiten</span>
+        <span>
+          Allergien &amp; Unverträglichkeiten <em>(optional)</em>
+        </span>
         <input
           type="text"
           aria-label={`Allergien & Unverträglichkeiten (${who})`}
           maxLength={500}
           value={person.allergies}
           onChange={(e) => onChange({ allergies: e.target.value })}
-          placeholder="optional, z. B. Nüsse"
+          placeholder="z. B. Nüsse, Laktose"
+        />
+      </label>
+      <label className="mini-field">
+        <span>
+          Sonstiger Hinweis zum Essen <em>(optional)</em>
+        </span>
+        <input
+          type="text"
+          aria-label={`Sonstiger Hinweis zum Essen (${who})`}
+          maxLength={500}
+          value={person.wish}
+          onChange={(e) => onChange({ wish: e.target.value })}
+          placeholder="z. B. Kinderportion"
         />
       </label>
     </>
   )
 }
 
-export function MenuPicker({ value, onChange }) {
+export function MenuPicker({ value, onChange, who }) {
   const name = useId()
   return (
-    <fieldset className="menu-list">
-      <legend className="visually-hidden">Menü</legend>
-      {menus.map((m) => (
-        <Choice key={m.value} name={name} checked={value === m.value} onChange={() => onChange(m.value)}>
-          {m.label}
-        </Choice>
-      ))}
+    <fieldset>
+      <legend className="mini-legend">
+        Menü<span className="visually-hidden">{who ? ` (${who})` : ''}</span>
+      </legend>
+      <div className="menu-list">
+        {menus.map((m) => (
+          <Choice key={m.value} name={name} checked={value === m.value} onChange={() => onChange(m.value)}>
+            {m.label}
+          </Choice>
+        ))}
+      </div>
     </fieldset>
   )
 }

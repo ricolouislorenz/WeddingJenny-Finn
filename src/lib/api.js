@@ -10,19 +10,19 @@ async function rpc(fn, body) {
       body: JSON.stringify(body),
     })
   } catch {
-    throw new Error('Keine Verbindung. Bitte prüfe deine Internetverbindung und versuche es erneut.')
+    throw new Error('Keine Verbindung. Bitte prüft eure Internetverbindung und versucht es noch einmal.')
   }
 
   // Login abgelaufen (z. B. Passwort geändert) → zurück zur Anmeldeseite
   if (res.status === 401) {
     window.location.reload()
-    throw new Error('Bitte melde dich erneut an.')
+    throw new Error('Bitte meldet euch erneut an.')
   }
 
   const data = await res.json().catch(() => null)
   if (!res.ok) {
     // Fehlermeldungen aus den SQL-Funktionen ("raise exception") direkt anzeigen
-    throw new Error(data?.message || 'Da ist etwas schiefgelaufen. Bitte versuche es später noch einmal.')
+    throw new Error(data?.message || 'Da ist leider etwas schiefgelaufen. Bitte versucht es später noch einmal.')
   }
   return data
 }

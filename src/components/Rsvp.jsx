@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { getRsvp, saveRsvp } from '../lib/api.js'
 import { RSVP_DEADLINE } from '../content.js'
+import PanelHead from './PanelHead.jsx'
 import { Icon } from './Icons.jsx'
 import { Choice, MealFields } from './Choices.jsx'
 
@@ -44,6 +45,12 @@ export default function Rsvp() {
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
   const lastLookup = useRef('')
+  const errorRef = useRef(null)
+
+  // Fehlermeldung steht direkt über dem Button – auf kleinen Bildschirmen sichtbar machen
+  useEffect(() => {
+    if (error) errorRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [error])
 
   // Bekannter Name? Dann gespeicherte Angaben laden, sonst neu anlegen.
   async function checkName(raw) {
@@ -85,12 +92,12 @@ export default function Rsvp() {
   async function submit(e) {
     e.preventDefault()
     const name = cleanName(form.name)
-    if (name.length < 2) return setError('Bitte gib deinen Vor- und Nachnamen ein.')
-    if (form.attending === null) return setError('Bitte sag uns, ob du dabei bist.')
+    if (name.length < 2) return setError('Bitte gebt euren Vor- und Nachnamen ein.')
+    if (form.attending === null) return setError('Bitte sagt uns, ob ihr dabei seid.')
     if (form.attending) {
-      if (!form.menu) return setError('Bitte wähle dein Menü aus.')
-      if (form.companions.some((c) => cleanName(c.name).length < 2 || !c.menu))
-        return setError('Bitte gib für jede Person Name und Menü an.')
+      if (!form.menu) return setError(`Bitte wählt ein Menü für ${cleanName(form.name)}.`)
+      const missing = form.companions.findIndex((c) => cleanName(c.name).length < 2 || !c.menu)
+      if (missing >= 0) return setError(`Bitte ergänzt Name und Menü für Person ${missing + 2}.`)
     }
 
     setBusy(true)
@@ -122,37 +129,43 @@ export default function Rsvp() {
     const persons = form.companions.length + 1
     return (
       <section className="panel done" role="status">
-        <span className="done-icon"><Icon name="check" /></span>
-        <h2>{form.attending ? 'Wir freuen uns auf euch!' : 'Schade – danke dir!'}</h2>
+        <span className="done-icon">
+          <Icon name="check" />
+        </span>
+        <h2 className="title">{form.attending ? 'Wir freuen uns auf euch!' : 'Schade, dass ihr nicht dabei seid'}</h2>
         <p>
           {form.attending
-            ? `Deine Rückmeldung${persons > 1 ? ` für ${persons} Personen` : ''} ist gespeichert.`
-            : 'Deine Absage ist gespeichert. Wir werden an dich denken.'}{' '}
-          Mit deinem Namen kannst du sie jederzeit ändern.
+            ? `Eure Zusage${persons > 1 ? ` für ${persons} Personen` : ''} ist bei uns angekommen. Danke!`
+            : 'Danke für eure Rückmeldung – wir denken an euch.'}
         </p>
+        <p className="hint">Falls sich etwas ändert: Mit demselben Namen könnt ihr eure Angaben jederzeit anpassen.</p>
         <button type="button" className="button button-ghost" onClick={() => setDone(false)}>
-          Angaben bearbeiten
+          Angaben ändern
         </button>
       </section>
     )
   }
 
+  const firstName = cleanName(form.name)
+
   return (
     <section className="panel" aria-labelledby="rsvp-title">
-      <div className="panel-head">
-        <h2 id="rsvp-title">Rückmeldung</h2>
+      <PanelHead id="rsvp-title" kicker="Bitte gebt uns Bescheid" title="Rückmeldung">
         {RSVP_DEADLINE && (
           <p className="deadline">
             Bitte bis zum {RSVP_DEADLINE.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         )}
-        <p className="sub">Schon geantwortet? Gib einfach deinen Namen ein, um deine Angaben zu ändern.</p>
-      </div>
+        <p className="sub">Eine Rückmeldung pro Haushalt genügt – tragt einfach alle ein, die mitkommen.</p>
+      </PanelHead>
 
       <form className="form" onSubmit={submit} noValidate>
-        <label className="field">
-          <span className="label">Dein Name</span>
+        <div className="field">
+          <label className="label" htmlFor="rsvp-name">
+            Vor- und Nachname
+          </label>
           <input
+            id="rsvp-name"
             type="text"
             name="name"
             autoComplete="name"
@@ -161,16 +174,17 @@ export default function Rsvp() {
             value={form.name}
             onChange={(e) => update({ name: e.target.value })}
             onBlur={(e) => checkName(e.target.value)}
-            placeholder="Vor- und Nachname"
+            placeholder="z. B. Anna Schmidt"
+            aria-describedby="name-hint"
             required
           />
           <LookupHint state={lookup} />
-        </label>
+        </div>
 
         <fieldset className="choice-row">
-          <legend className="label">Bist du dabei?</legend>
+          <legend className="label">Seid ihr dabei?</legend>
           <Choice name="attending" checked={form.attending === true} onChange={() => update({ attending: true })}>
-            Ja, gerne
+            Ja, gern!
           </Choice>
           <Choice name="attending" checked={form.attending === false} onChange={() => update({ attending: false })}>
             Leider nicht
@@ -179,41 +193,48 @@ export default function Rsvp() {
 
         {form.attending && (
           <div className="persons">
-            <div>
-              <span className="label">Personen & Menüwahl</span>
-              <p className="hint">Trage jede Person einzeln ein – Name und Menü sind für alle nötig.</p>
+            <div className="persons-head">
+              <span className="label">Gäste &amp; Menü</span>
+              <p className="hint">Wählt für jede Person ein Menü. Kinder tragt ihr einfach als weitere Person ein.</p>
             </div>
 
             <div className="person">
-              <h3 className="person-title">{cleanName(form.name) || '1. Person'}</h3>
-              <MealFields person={form} onChange={update} who="1. Person" />
+              <h3 className="person-title names">{firstName || 'Person 1'}</h3>
+              <MealFields person={form} onChange={update} who={firstName || 'Person 1'} />
             </div>
 
-            {form.companions.map((c, i) => (
-              <div className="person" key={c.key}>
-                <div className="person-head">
-                  <h3 className="person-title">{cleanName(c.name) || `${i + 2}. Person`}</h3>
-                  <button
-                    type="button"
-                    className="icon-button"
-                    aria-label={`${i + 2}. Person entfernen`}
-                    onClick={() => removeCompanion(c.key)}
-                  >
-                    <Icon name="close" />
-                  </button>
+            {form.companions.map((c, i) => {
+              const label = `Person ${i + 2}`
+              return (
+                <div className="person" key={c.key}>
+                  <div className="person-head">
+                    <h3 className="person-title names">{cleanName(c.name) || label}</h3>
+                    <button
+                      type="button"
+                      className="icon-button"
+                      aria-label={`${cleanName(c.name) || label} entfernen`}
+                      title="Person entfernen"
+                      onClick={() => removeCompanion(c.key)}
+                    >
+                      <Icon name="close" />
+                    </button>
+                  </div>
+                  <label className="mini-field">
+                    <span>Vor- und Nachname</span>
+                    <input
+                      type="text"
+                      aria-label={`Vor- und Nachname (${label})`}
+                      autoCapitalize="words"
+                      maxLength={80}
+                      value={c.name}
+                      onChange={(e) => updateCompanion(c.key, { name: e.target.value })}
+                      placeholder="z. B. Max Schmidt"
+                    />
+                  </label>
+                  <MealFields person={c} onChange={(patch) => updateCompanion(c.key, patch)} who={label} />
                 </div>
-                <input
-                  type="text"
-                  aria-label={`Name ${i + 2}. Person`}
-                  autoCapitalize="words"
-                  maxLength={80}
-                  value={c.name}
-                  onChange={(e) => updateCompanion(c.key, { name: e.target.value })}
-                  placeholder="Vor- und Nachname"
-                />
-                <MealFields person={c} onChange={(patch) => updateCompanion(c.key, patch)} who={`${i + 2}. Person`} />
-              </div>
-            ))}
+              )
+            })}
 
             {form.companions.length < 10 && (
               <button type="button" className="add-person" onClick={addCompanion}>
@@ -224,20 +245,26 @@ export default function Rsvp() {
         )}
 
         <label className="field">
-          <span className="label">Nachricht an Jenny & Finn</span>
+          <span className="label">
+            Nachricht an uns <span className="optional">(optional)</span>
+          </span>
           <textarea
             rows={3}
             maxLength={2000}
             value={form.message}
             onChange={(e) => update({ message: e.target.value })}
-            placeholder="Optional – ein paar liebe Worte, ein Musikwunsch …"
+            placeholder="Ein paar liebe Worte oder ein Musikwunsch für die Tanzfläche …"
           />
         </label>
 
-        {error && <p className="error" role="alert">{error}</p>}
+        {error && (
+          <p className="error" role="alert" ref={errorRef}>
+            {error}
+          </p>
+        )}
 
         <button className="button button-block" disabled={busy || lookup === 'loading'}>
-          {busy ? 'Wird gespeichert …' : lookup === 'found' ? 'Änderungen speichern' : 'Rückmeldung senden'}
+          {busy ? 'Wird gesendet …' : lookup === 'found' ? 'Änderungen speichern' : 'Rückmeldung senden'}
         </button>
       </form>
     </section>
@@ -245,8 +272,21 @@ export default function Rsvp() {
 }
 
 function LookupHint({ state }) {
-  if (state === 'loading') return <span className="lookup">Einen Moment …</span>
+  if (state === 'loading')
+    return (
+      <span className="lookup" id="name-hint">
+        Einen Moment, wir schauen nach …
+      </span>
+    )
   if (state === 'found')
-    return <span className="lookup lookup-found">Willkommen zurück! Deine Angaben wurden geladen – du kannst sie jetzt ändern.</span>
-  return null
+    return (
+      <span className="lookup lookup-found" id="name-hint">
+        <Icon name="check" /> Willkommen zurück! Eure Angaben sind geladen – ändert einfach, was ihr möchtet.
+      </span>
+    )
+  return (
+    <span className="lookup" id="name-hint">
+      Schon geantwortet? Mit demselben Namen ladet ihr eure Angaben und könnt sie ändern.
+    </span>
+  )
 }

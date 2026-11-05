@@ -18,8 +18,8 @@
 }
 
 .admin-header h1 {
-  font-family: var(--script);
-  font-weight: 400;
+  font-family: var(--serif);
+  font-weight: 500;
   font-size: clamp(2.4rem, 7vw, 3.2rem);
   line-height: 1.1;
 }
@@ -77,8 +77,9 @@
 }
 
 .stat strong {
-  font-size: 1.9rem;
-  font-weight: 300;
+  font-family: var(--serif);
+  font-size: 2.1rem;
+  font-weight: 500;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
@@ -142,19 +143,6 @@
 
 .search {
   flex: 1 1 260px;
-  font: inherit;
-  font-size: 1rem;
-  color: var(--ink);
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 10px 14px;
-}
-
-.search:focus {
-  outline: none;
-  border-color: var(--moss);
-  box-shadow: 0 0 0 3px rgb(140 160 120 / 0.22);
 }
 
 .filter {
@@ -173,9 +161,9 @@
   border-radius: 8px;
   background: transparent;
   font: inherit;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink);
   cursor: pointer;
@@ -220,8 +208,10 @@
 
 .guest-main h2,
 .editor-title {
-  font-size: 1.1rem;
+  font-family: var(--serif);
+  font-size: 1.45rem;
   font-weight: 600;
+  line-height: 1.2;
 }
 
 .pill {
@@ -266,7 +256,7 @@
 
 .muted {
   font-size: 0.85rem;
-  opacity: 0.75;
+  color: var(--ink-soft);
 }
 
 .notes {
@@ -331,7 +321,7 @@
 .empty {
   padding: 32px 16px;
   text-align: center;
-  opacity: 0.75;
+  color: var(--ink-soft);
 }
 
 .toast {

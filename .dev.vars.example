@@ -1,5 +1,5 @@
-# Lokale Secrets für `npm run dev` – als .dev.vars kopieren (wird nicht eingecheckt).
-# Für Cloudflare: npx wrangler secret put SITE_PASSWORD (usw.) oder im Dashboard eintragen.
+# Lokale Secrets für `npm run preview` – als .dev.vars kopieren (wird nicht eingecheckt).
+# Für Cloudflare Pages: npx wrangler pages secret put SITE_PASSWORD (usw.) oder im Dashboard eintragen.
 SITE_PASSWORD=Hochzeit2027
 ADMIN_PASSWORD=Admin
 AUTH_SECRET=bitte-durch-lange-zufallszeichenkette-ersetzen

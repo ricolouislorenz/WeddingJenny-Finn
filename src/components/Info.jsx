@@ -1,13 +1,13 @@
 import { faqs, infos, venue } from '../content.js'
 import { Icon } from './Icons.jsx'
+import PanelHead from './PanelHead.jsx'
 
 export default function Info() {
   return (
     <section className="panel" aria-labelledby="infos-title">
-      <div className="panel-head">
-        <h2 id="infos-title">Weitere Infos</h2>
+      <PanelHead id="infos-title" kicker="Damit nichts fehlt" title="Gut zu wissen">
         <p className="sub">Alles, was ihr für den Tag wissen solltet</p>
-      </div>
+      </PanelHead>
 
       <div className="details">
         {infos.map((info) => (
@@ -16,7 +16,7 @@ export default function Info() {
               <Icon name={info.icon} />
             </span>
             <p className="kicker">{info.label}</p>
-            <h3>{info.title}</h3>
+            <h3 className="title">{info.title}</h3>
             <p>{info.text}</p>
           </article>
         ))}
@@ -28,7 +28,7 @@ export default function Info() {
           <Icon name="pin" />
         </span>
         <p className="kicker">Location</p>
-        <h3>{venue.fullName}</h3>
+        <h3 className="title">{venue.fullName}</h3>
         <address>
           {venue.street}
           <br />
@@ -41,8 +41,10 @@ export default function Info() {
       </article>
 
       <div className="faq">
-        <p className="kicker">Gut zu wissen</p>
-        <h3 className="faq-title">Häufige Fragen</h3>
+        <div className="faq-head">
+          <p className="kicker">Fragen &amp; Antworten</p>
+          <h3 className="title">Häufige Fragen</h3>
+        </div>
         {faqs.map((f) => (
           <details key={f.q}>
             <summary>

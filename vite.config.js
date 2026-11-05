@@ -1,9 +1,9 @@
 import react from '@vitejs/plugin-react'
-import { cloudflare } from '@cloudflare/vite-plugin'
 import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
-// Das Cloudflare-Plugin führt den Worker (Passwortschutz, API) auch bei `npm run dev` aus.
+// `npm run dev`     → nur Frontend mit Hot Reload (ohne Passwortschutz, /api antwortet nicht)
+// `npm run preview` → fertiger Build inkl. Pages Functions, verhält sich wie live
 export default defineConfig({
-  plugins: [react(), cloudflare()],
+  plugins: [react()],
 })

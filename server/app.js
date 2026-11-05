@@ -1,6 +1,8 @@
-// Cloudflare Worker: Passwortschutz für die gesamte Seite, Admin-Bereich + Proxy zu Supabase.
+// Server-Logik: Passwortschutz für die gesamte Seite, Admin-Bereich + Proxy zu Supabase.
+// Läuft als Cloudflare Pages Function (functions/_middleware.js) vor JEDER Anfrage –
+// auch vor statischen Dateien, sonst wäre der Passwortschutz umgehbar.
 //
-// Secrets (Cloudflare Dashboard → Worker → Settings → Variables, lokal in .dev.vars):
+// Secrets (Cloudflare → Pages-Projekt → Settings → Variables and Secrets, lokal in .dev.vars):
 //   SITE_PASSWORD         Passwort für alle Gäste
 //   ADMIN_PASSWORD        Passwort für die Gästeverwaltung (/admin)
 //   AUTH_SECRET           lange Zufallszeichenkette zum Signieren des Login-Cookies
@@ -154,43 +156,42 @@ async function serveLogin(request, url, env) {
   })
 }
 
-export default {
-  async fetch(request, env) {
-    const url = new URL(request.url)
-    const { pathname } = url
-    const isPage = request.method === 'GET' && (request.headers.get('Accept') || '').includes('text/html')
+// next() liefert die angefragte statische Datei aus (Pages-Assets)
+export async function handle(request, env, next) {
+  const url = new URL(request.url)
+  const { pathname } = url
+  const isPage = request.method === 'GET' && (request.headers.get('Accept') || '').includes('text/html')
 
-    if (pathname === '/api/login' && request.method === 'POST') return login(request, env)
-    if (pathname === '/api/logout' && request.method === 'POST')
-      return json({ ok: true }, 200, { 'Set-Cookie': cookie(request, '', 0) })
+  if (pathname === '/api/login' && request.method === 'POST') return login(request, env)
+  if (pathname === '/api/logout' && request.method === 'POST')
+    return json({ ok: true }, 200, { 'Set-Cookie': cookie(request, '', 0) })
 
-    const role = await roleOf(request, env)
+  const role = await roleOf(request, env)
 
-    if (pathname.startsWith('/api/admin/')) {
-      if (role !== 'admin') return json({ message: 'Bitte melde dich als Admin an.' }, 401)
-      return admin(request, env, pathname)
-    }
+  if (pathname.startsWith('/api/admin/')) {
+    if (role !== 'admin') return json({ message: 'Bitte melde dich als Admin an.' }, 401)
+    return admin(request, env, pathname)
+  }
 
-    if (pathname.startsWith('/api/rsvp/')) {
-      const fn = RPC[pathname.slice('/api/rsvp/'.length)]
-      if (!role) return json({ message: 'Bitte melde dich erneut an.' }, 401)
-      if (!fn || request.method !== 'POST') return json({ message: 'Nicht gefunden.' }, 404)
-      if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY)
-        return json({ message: 'Die Datenbank ist noch nicht verbunden.' }, 500)
-      return relay(await supabase(env, `rpc/${fn}`, { method: 'POST', body: await request.text() }))
-    }
+  if (pathname.startsWith('/api/rsvp/')) {
+    const fn = RPC[pathname.slice('/api/rsvp/'.length)]
+    if (!role) return json({ message: 'Bitte meldet euch erneut an.' }, 401)
+    if (!fn || request.method !== 'POST') return json({ message: 'Nicht gefunden.' }, 404)
+    if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY)
+      return json({ message: 'Die Datenbank ist noch nicht verbunden.' }, 500)
+    return relay(await supabase(env, `rpc/${fn}`, { method: 'POST', body: await request.text() }))
+  }
 
-    // Admin-Seite nur mit Admin-Login – sonst Anmeldeseite (dort "Admin" eingeben)
-    if (/^\/admin\/?$/.test(pathname) && role !== 'admin') return serveLogin(request, url, env)
+  // Admin-Seite nur mit Admin-Login – sonst Anmeldeseite (dort "Admin" eingeben)
+  if (/^\/admin\/?$/.test(pathname) && role !== 'admin') return serveLogin(request, url, env)
 
-    // Angemeldet auf der Login-Seite? Direkt weiter.
-    if (role && /^\/login/.test(pathname)) return Response.redirect(new URL(role === 'admin' ? '/admin' : '/', url), 302)
+  // Angemeldet auf der Login-Seite? Direkt weiter.
+  if (role && /^\/login/.test(pathname)) return Response.redirect(new URL(role === 'admin' ? '/admin' : '/', url), 302)
 
-    if (role || PUBLIC_PATHS.some((re) => re.test(pathname))) return env.ASSETS.fetch(request)
+  if (role || PUBLIC_PATHS.some((re) => re.test(pathname))) return next()
 
-    // Nicht angemeldet: Seitenaufrufe bekommen die Anmeldeseite (URL & #Anker bleiben erhalten),
-    // alles andere (JS, CSS, Daten) wird verweigert.
-    if (isPage) return serveLogin(request, url, env)
-    return new Response('Unauthorized', { status: 401, headers: { 'Cache-Control': 'no-store' } })
-  },
+  // Nicht angemeldet: Seitenaufrufe bekommen die Anmeldeseite (URL & #Anker bleiben erhalten),
+  // alles andere (JS, CSS, Daten) wird verweigert.
+  if (isPage) return serveLogin(request, url, env)
+  return new Response('Unauthorized', { status: 401, headers: { 'Cache-Control': 'no-store' } })
 }
