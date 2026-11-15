@@ -7,8 +7,9 @@
 //   ADMIN_PASSWORD        Passwort für die Gästeverwaltung (/admin)
 //   AUTH_SECRET           lange Zufallszeichenkette zum Signieren des Login-Cookies
 //   SUPABASE_URL          https://xxxx.supabase.co
-//   SUPABASE_ANON_KEY     anon/public key – für die Gäste-Funktionen
-//   SUPABASE_SERVICE_KEY  service_role key – NUR für den Admin-Bereich, verlässt nie den Server
+//   SUPABASE_ANON_KEY     Publishable key (sb_publishable_…) – für die Gäste-Funktionen
+//   SUPABASE_SERVICE_KEY  Secret key (sb_secret_…) – NUR für den Admin-Bereich, verlässt nie den Server
+//   (alte anon/service_role-Schlüssel funktionieren weiterhin, laufen bei Supabase aber 2027 aus)
 
 const COOKIE = 'jf_auth'
 const MAX_AGE = 60 * 60 * 24 * 365 // ein Jahr – Gäste sollen sich nur einmal anmelden
@@ -86,12 +87,16 @@ async function login(request, env) {
   })
 }
 
+// Neue Schlüssel (sb_publishable_… / sb_secret_…) sind keine JWTs und gehören nur in den
+// apikey-Header – als "Authorization: Bearer" würden sie abgelehnt. Alte (Legacy-)Schlüssel
+// sind JWTs (beginnen mit "eyJ") und brauchen zusätzlich den Authorization-Header.
 function supabase(env, path, init = {}, key = env.SUPABASE_ANON_KEY) {
-  return fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, {
+  const legacyJwt = key.startsWith('eyJ')
+  return fetch(`${env.SUPABASE_URL.replace(/\/+$/, '')}/rest/v1/${path}`, {
     ...init,
     headers: {
       apikey: key,
-      Authorization: `Bearer ${key}`,
+      ...(legacyJwt && { Authorization: `Bearer ${key}` }),
       'Content-Type': 'application/json',
       ...init.headers,
     },

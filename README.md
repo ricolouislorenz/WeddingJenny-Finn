@@ -46,9 +46,9 @@ Der Browser spricht nie direkt mit Supabase – alle Anfragen laufen über `/api
 | `SITE_PASSWORD` | Passwort für alle Gäste |
 | `ADMIN_PASSWORD` | Passwort für die Gästeliste (`/admin`) |
 | `AUTH_SECRET` | lange Zufallszeichenkette (z. B. `openssl rand -hex 32`) |
-| `SUPABASE_URL` | Project Settings → API → URL |
-| `SUPABASE_ANON_KEY` | Project Settings → API → anon public key |
-| `SUPABASE_SERVICE_KEY` | Project Settings → API → service_role key (nur für `/admin`) |
+| `SUPABASE_URL` | Supabase → Project Settings → Data API → Project URL |
+| `SUPABASE_ANON_KEY` | Supabase → Project Settings → API Keys → **Publishable key** (`sb_publishable_…`) |
+| `SUPABASE_SERVICE_KEY` | Supabase → Project Settings → API Keys → **Secret key** (`sb_secret_…`, nur für `/admin`) |
 
 Lokal: `.dev.vars.example` nach `.dev.vars` kopieren und ausfüllen.
 
