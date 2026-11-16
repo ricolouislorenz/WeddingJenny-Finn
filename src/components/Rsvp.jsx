@@ -3,7 +3,7 @@ import { getRsvp, saveRsvp } from '../lib/api.js'
 import { RSVP_DEADLINE } from '../content.js'
 import PanelHead from './PanelHead.jsx'
 import { Icon } from './Icons.jsx'
-import { Choice, MealFields } from './Choices.jsx'
+import { Choice, PersonCard } from './Choices.jsx'
 
 const NAME_KEY = 'jf-rsvp-name'
 
@@ -146,8 +146,6 @@ export default function Rsvp() {
     )
   }
 
-  const firstName = cleanName(form.name)
-
   return (
     <section className="panel" aria-labelledby="rsvp-title">
       <PanelHead id="rsvp-title" kicker="Bitte gebt uns Bescheid" title="Rückmeldung">
@@ -198,43 +196,18 @@ export default function Rsvp() {
               <p className="hint">Wählt für jede Person ein Menü. Kinder tragt ihr einfach als weitere Person ein.</p>
             </div>
 
-            <div className="person">
-              <h3 className="person-title names">{firstName || 'Person 1'}</h3>
-              <MealFields person={form} onChange={update} who={firstName || 'Person 1'} />
-            </div>
+            <PersonCard person={form} onChange={update} label="Person 1" />
 
-            {form.companions.map((c, i) => {
-              const label = `Person ${i + 2}`
-              return (
-                <div className="person" key={c.key}>
-                  <div className="person-head">
-                    <h3 className="person-title names">{cleanName(c.name) || label}</h3>
-                    <button
-                      type="button"
-                      className="icon-button"
-                      aria-label={`${cleanName(c.name) || label} entfernen`}
-                      title="Person entfernen"
-                      onClick={() => removeCompanion(c.key)}
-                    >
-                      <Icon name="close" />
-                    </button>
-                  </div>
-                  <label className="mini-field">
-                    <span>Vor- und Nachname</span>
-                    <input
-                      type="text"
-                      aria-label={`Vor- und Nachname (${label})`}
-                      autoCapitalize="words"
-                      maxLength={80}
-                      value={c.name}
-                      onChange={(e) => updateCompanion(c.key, { name: e.target.value })}
-                      placeholder="z. B. Max Schmidt"
-                    />
-                  </label>
-                  <MealFields person={c} onChange={(patch) => updateCompanion(c.key, patch)} who={label} />
-                </div>
-              )
-            })}
+            {form.companions.map((c, i) => (
+              <PersonCard
+                key={c.key}
+                person={c}
+                onChange={(patch) => updateCompanion(c.key, patch)}
+                label={`Person ${i + 2}`}
+                withName
+                onRemove={() => removeCompanion(c.key)}
+              />
+            ))}
 
             {form.companions.length < 10 && (
               <button type="button" className="add-person" onClick={addCompanion}>

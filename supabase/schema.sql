@@ -25,6 +25,9 @@ alter table public.rsvps add column if not exists wish text not null default '' 
 alter table public.rsvps enable row level security;
 -- Keine Policies => anon/authenticated haben keinen direkten Tabellenzugriff.
 revoke all on public.rsvps from anon, authenticated;
+-- Admin-Bereich (Secret key = service_role) braucht vollen Tabellenzugriff.
+-- Neuere Supabase-Projekte vergeben das nicht mehr automatisch.
+grant select, insert, update, delete on public.rsvps to service_role;
 
 -- "  Jenny   MÜLLER " -> "jenny müller"
 create or replace function public.normalize_name(p text)
@@ -175,3 +178,6 @@ from public.rsvps r
 order by r.updated_at desc;
 
 revoke all on public.rsvp_overview from anon, authenticated;
+
+-- API sofort über die neuen Funktionen informieren (sonst "Could not find the function … in the schema cache")
+notify pgrst, 'reload schema';

@@ -1,5 +1,41 @@
 import { useId } from 'react'
 import { menus } from '../content.js'
+import { Icon } from './Icons.jsx'
+
+const clean = (s) => (s || '').trim().replace(/\s+/g, ' ')
+
+// Karte für eine Person (Gästeformular & Admin-Bereich):
+// Begleitpersonen haben ein eigenes Namensfeld und lassen sich entfernen.
+export function PersonCard({ person, onChange, label, withName = false, onRemove }) {
+  const title = clean(person.name) || label
+  return (
+    <div className="person">
+      <div className="person-head">
+        <h3 className="person-title names">{title}</h3>
+        {onRemove && (
+          <button type="button" className="icon-button" aria-label={`${title} entfernen`} title="Person entfernen" onClick={onRemove}>
+            <Icon name="close" />
+          </button>
+        )}
+      </div>
+      {withName && (
+        <label className="mini-field">
+          <span>Vor- und Nachname</span>
+          <input
+            type="text"
+            aria-label={`Vor- und Nachname (${label})`}
+            autoCapitalize="words"
+            maxLength={80}
+            value={person.name}
+            onChange={(e) => onChange({ name: e.target.value })}
+            placeholder="z. B. Max Schmidt"
+          />
+        </label>
+      )}
+      <MealFields person={person} onChange={onChange} who={title} />
+    </div>
+  )
+}
 
 // Auswahl-Kachel (Radio-Button) – genutzt im Gästeformular und in der Admin-Ansicht
 export function Choice({ name, checked, onChange, children }) {

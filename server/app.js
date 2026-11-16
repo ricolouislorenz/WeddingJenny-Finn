@@ -112,13 +112,18 @@ async function relay(res) {
     })
   }
   const err = await res.json().catch(() => ({}))
+  // 401/403 von Supabase heißt: Schlüssel oder Datenbankrechte stimmen nicht. Das darf NICHT als
+  // 401 beim Browser ankommen – der hält 401 für "Login abgelaufen" und lädt die Seite neu.
+  const denied = res.status === 401 || res.status === 403 || err.code === '42501'
   const message =
     err.code === '23505'
       ? 'Diesen Namen gibt es bereits.'
       : err.code === '23514'
         ? 'Ungültige Angaben (z. B. Menü oder Textlänge).'
-        : err.message || 'Datenbankfehler.'
-  return json({ message }, res.status)
+        : denied
+          ? `Die Datenbank hat den Zugriff verweigert – bitte Supabase-Schlüssel und schema.sql prüfen. (${err.message || res.status})`
+          : err.message || 'Datenbankfehler.'
+  return json({ message }, denied ? 502 : res.status)
 }
 
 function adminPayload(body) {

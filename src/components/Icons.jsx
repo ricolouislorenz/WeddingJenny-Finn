@@ -15,6 +15,9 @@ const paths = {
   plus: 'M12 5v14M5 12h14',
   close: 'M6 6l12 12M18 6 6 18',
   check: 'M5 12.5l4.5 4.5L19 7',
+  search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14Zm5-2 4 4',
+  download: 'M12 4v11m-4.5-4.5L12 15l4.5-4.5M5 20h14',
+  trash: 'M5 7h14M10 7V5h4v2m-7 0 1 13h8l1-13M10.5 11v6m3-6v6',
 }
 
 export function Icon({ name, className = 'icon' }) {

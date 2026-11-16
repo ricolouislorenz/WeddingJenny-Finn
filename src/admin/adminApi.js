@@ -1,4 +1,7 @@
-// Admin-Schnittstelle des Workers (/api/admin/*) – nur mit Admin-Login nutzbar
+// Admin-Schnittstelle (/api/admin/*) – nur mit Admin-Login nutzbar
+import { reloadForLogin } from '../lib/reauth.js'
+
+export class AuthError extends Error {}
 
 async function request(path, init = {}) {
   let res
@@ -8,10 +11,10 @@ async function request(path, init = {}) {
     throw new Error('Keine Verbindung. Bitte prüfe deine Internetverbindung.')
   }
 
-  // Admin-Login abgelaufen → Anmeldeseite
+  // Admin-Login abgelaufen → einmal neu laden (zeigt die Anmeldeseite), nie in Schleife
   if (res.status === 401) {
-    window.location.reload()
-    throw new Error('Bitte melde dich erneut an.')
+    reloadForLogin()
+    throw new AuthError('Deine Anmeldung ist abgelaufen. Bitte melde dich erneut an.')
   }
 
   const data = res.status === 204 ? null : await res.json().catch(() => null)

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Icon } from '../components/Icons.jsx'
-import { Choice, MealFields } from '../components/Choices.jsx'
-import { createGuest, deleteGuest, listGuests, logout, updateGuest } from './adminApi.js'
+import { Choice, PersonCard } from '../components/Choices.jsx'
+import { Backdrop } from '../components/Botanical.jsx'
+import { WEDDING_DATE_LABEL } from '../content.js'
+import { AuthError, createGuest, deleteGuest, listGuests, logout, updateGuest } from './adminApi.js'
 import { downloadCsv, menuLabel, personsOf, stats } from './guests.js'
 import './admin.css'
 
@@ -14,7 +16,7 @@ const FILTERS = [
 export default function Admin() {
   const [guests, setGuests] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [error, setError] = useState(null) // Error | null
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('all')
   const [editing, setEditing] = useState(null) // id | 'new' | null
@@ -24,7 +26,7 @@ export default function Admin() {
     document.title = 'Gästeliste · Jenny & Finn'
     listGuests()
       .then(setGuests)
-      .catch((err) => setError(err.message))
+      .catch(setError)
       .finally(() => setLoading(false))
   }, [])
 
@@ -70,69 +72,79 @@ export default function Admin() {
 
   return (
     <div className="admin">
+      <Backdrop />
+
+      <nav className="admin-bar" aria-label="Navigation">
+        <a href="/" className="bar-link">
+          <span aria-hidden="true">←</span> Zur Einladung
+        </a>
+        <button type="button" className="bar-link" onClick={signOut}>
+          Abmelden
+        </button>
+      </nav>
+
       <header className="admin-header">
-        <div>
-          <h1>Gästeliste</h1>
-          <p className="sub">Jenny &amp; Finn · 29. Mai 2027</p>
-        </div>
-        <div className="admin-actions">
-          <button type="button" className="button" onClick={() => setEditing('new')} disabled={editing === 'new'}>
-            <Icon name="plus" /> Gast hinzufügen
-          </button>
-          <button type="button" className="button button-ghost" onClick={() => downloadCsv(guests)} disabled={!guests.length}>
-            CSV exportieren
-          </button>
-          <a className="button button-ghost" href="/">
-            Zur Einladung
-          </a>
-          <button type="button" className="text-button" onClick={signOut}>
-            Abmelden
-          </button>
+        <p className="kicker">Jenny &amp; Finn · {WEDDING_DATE_LABEL}</p>
+        <h1 className="title">Gästeliste</h1>
+        <div className="ornament" aria-hidden="true">
+          <span />
         </div>
       </header>
 
       <section className="stats" aria-label="Übersicht">
-        <Stat value={summary.persons} label="Personen kommen" strong />
-        <Stat value={summary.yes} label="Zusagen" />
-        <Stat value={summary.no} label="Absagen" />
+        <Stat value={summary.persons} label={summary.persons === 1 ? 'Person kommt' : 'Personen kommen'} strong />
+        <Stat value={summary.yes} label={summary.yes === 1 ? 'Zusage' : 'Zusagen'} />
+        <Stat value={summary.no} label={summary.no === 1 ? 'Absage' : 'Absagen'} />
         <Stat value={summary.allergies} label="mit Allergien" />
         <div className="stat stat-menus">
-          {summary.menus.map((m) => (
-            <span key={m.value}>
-              <strong>{m.count}</strong> {m.label}
-            </span>
-          ))}
+          <span className="stat-label">Menüs</span>
+          <ul>
+            {summary.menus.map((m) => (
+              <li key={m.value}>
+                <strong>{m.count}</strong> {m.label}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
       <div className="toolbar">
-        <input
-          type="search"
-          className="search"
-          placeholder="Suchen nach Name, Essenswunsch, Allergie …"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Gästeliste durchsuchen"
-        />
+        <div className="search-field">
+          <Icon name="search" />
+          <input
+            type="search"
+            placeholder="Name, Allergie, Nachricht …"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Gästeliste durchsuchen"
+          />
+        </div>
         <div className="filter" role="group" aria-label="Filter">
           {FILTERS.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              className="filter-chip"
-              aria-pressed={filter === f.id}
-              onClick={() => setFilter(f.id)}
-            >
+            <button key={f.id} type="button" className="filter-chip" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
               {f.label}
             </button>
           ))}
         </div>
+        <div className="toolbar-actions">
+          <button type="button" className="button" onClick={() => setEditing('new')} disabled={editing === 'new'}>
+            <Icon name="plus" /> Gast hinzufügen
+          </button>
+          <button type="button" className="button button-ghost" onClick={() => downloadCsv(guests)} disabled={!guests.length}>
+            <Icon name="download" /> CSV
+          </button>
+        </div>
       </div>
 
       {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
+        <div className="error" role="alert">
+          <p>{error.message}</p>
+          {error instanceof AuthError && (
+            <a className="button button-ghost button-small" href="/admin">
+              Erneut anmelden
+            </a>
+          )}
+        </div>
       )}
 
       <div className="guest-list">
@@ -140,7 +152,7 @@ export default function Admin() {
 
         {loading && <p className="empty">Gästeliste wird geladen …</p>}
         {!loading && !error && !visible.length && (
-          <p className="empty">{guests.length ? 'Keine Treffer.' : 'Noch keine Rückmeldungen.'}</p>
+          <p className="empty">{guests.length ? 'Keine Treffer für diese Suche.' : 'Noch keine Rückmeldungen – sobald jemand antwortet, erscheint es hier.'}</p>
         )}
 
         {visible.map((g) =>
@@ -165,7 +177,7 @@ function Stat({ value, label, strong }) {
   return (
     <div className={`stat${strong ? ' stat-strong' : ''}`}>
       <strong>{value}</strong>
-      <span>{label}</span>
+      <span className="stat-label">{label}</span>
     </div>
   )
 }
@@ -175,30 +187,42 @@ function GuestRow({ guest: g, onEdit }) {
   return (
     <article className="guest">
       <div className="guest-main">
-        <h2>{g.name}</h2>
+        <h2 className="names">{g.name}</h2>
         <span className={`pill ${g.attending ? 'pill-yes' : 'pill-no'}`}>{g.attending ? 'Zusage' : 'Absage'}</span>
-        {g.attending && <span className="guest-count">{persons.length} {persons.length === 1 ? 'Person' : 'Personen'}</span>}
+        {g.attending && (
+          <span className="guest-count">
+            {persons.length} {persons.length === 1 ? 'Person' : 'Personen'}
+          </span>
+        )}
       </div>
 
       {g.attending && (
         <ul className="guest-persons">
           {persons.map((p, i) => (
             <li key={i}>
-              <span>{p.name}</span>
-              <span className="muted">{menuLabel(p.menu)}</span>
+              <span className="person-name">{p.name}</span>
+              <span className="menu-tag">{menuLabel(p.menu)}</span>
               <span className="notes">
-                {p.wish?.trim() && <span className="wish">{p.wish}</span>}
-                {p.allergies?.trim() && <span className="allergy">{p.allergies}</span>}
+                {p.allergies?.trim() && (
+                  <span className="note note-allergy">
+                    <b>Allergie</b> {p.allergies}
+                  </span>
+                )}
+                {p.wish?.trim() && (
+                  <span className="note">
+                    <b>Hinweis</b> {p.wish}
+                  </span>
+                )}
               </span>
             </li>
           ))}
         </ul>
       )}
 
-      {g.message && <p className="guest-message">„{g.message}“</p>}
+      {g.message && <blockquote className="guest-message">„{g.message}“</blockquote>}
 
       <div className="guest-foot">
-        <span className="muted">Aktualisiert {new Date(g.updated_at).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+        <span>Geändert am {new Date(g.updated_at).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })} Uhr</span>
         <button type="button" className="button button-ghost button-small" onClick={onEdit}>
           Bearbeiten
         </button>
@@ -231,9 +255,9 @@ function GuestEditor({ guest, onSave, onCancel, onDelete }) {
   async function submit(e) {
     e.preventDefault()
     if (form.name.trim().length < 2) return setError('Bitte einen Namen eingeben.')
-    if (form.attending && !form.menu) return setError('Bitte ein Menü auswählen.')
-    if (form.attending && form.companions.some((c) => c.name.trim().length < 2 || !c.menu))
-      return setError('Bitte für jede Begleitperson Name und Menü angeben.')
+    if (form.attending && !form.menu) return setError(`Bitte ein Menü für ${form.name.trim()} auswählen.`)
+    const missing = form.attending ? form.companions.findIndex((c) => c.name.trim().length < 2 || !c.menu) : -1
+    if (missing >= 0) return setError(`Bitte Name und Menü für Person ${missing + 2} angeben.`)
 
     setBusy(true)
     setError('')
@@ -265,67 +289,50 @@ function GuestEditor({ guest, onSave, onCancel, onDelete }) {
 
   return (
     <form className="guest guest-editing form" onSubmit={submit} noValidate>
-      <h2 className="editor-title">{guest ? 'Rückmeldung bearbeiten' : 'Neuer Gast'}</h2>
+      <h2 className="editor-title title">{guest ? 'Rückmeldung bearbeiten' : 'Neuen Gast eintragen'}</h2>
 
-      <label className="field">
-        <span className="label">Name</span>
-        <input type="text" value={form.name} maxLength={80} onChange={(e) => update({ name: e.target.value })} autoFocus={!guest} />
-      </label>
+      <div className="editor-grid">
+        <label className="field">
+          <span className="label">Vor- und Nachname</span>
+          <input type="text" value={form.name} maxLength={80} onChange={(e) => update({ name: e.target.value })} autoFocus={!guest} />
+        </label>
 
-      <fieldset className="choice-row">
-        <legend className="label">Status</legend>
-        <Choice name={`att-${form.id || 'new'}`} checked={form.attending} onChange={() => update({ attending: true })}>
-          Zusage
-        </Choice>
-        <Choice name={`att-${form.id || 'new'}`} checked={!form.attending} onChange={() => update({ attending: false })}>
-          Absage
-        </Choice>
-      </fieldset>
+        <fieldset className="choice-row">
+          <legend className="label">Status</legend>
+          <Choice name={`att-${form.id || 'new'}`} checked={form.attending} onChange={() => update({ attending: true })}>
+            Zusage
+          </Choice>
+          <Choice name={`att-${form.id || 'new'}`} checked={!form.attending} onChange={() => update({ attending: false })}>
+            Absage
+          </Choice>
+        </fieldset>
+      </div>
 
       {form.attending && (
         <div className="persons">
-          <div className="person">
-            <h3 className="person-title">{form.name.trim() || '1. Person'}</h3>
-            <MealFields person={form} onChange={update} who="1. Person" />
-          </div>
+          <PersonCard person={form} onChange={update} label="Person 1" />
 
           {form.companions.map((c, i) => (
-            <div className="person" key={c.key}>
-              <div className="person-head">
-                <h3 className="person-title">{c.name.trim() || `${i + 2}. Person`}</h3>
-                <button
-                  type="button"
-                  className="icon-button"
-                  aria-label={`${i + 2}. Person entfernen`}
-                  onClick={() => update({ companions: form.companions.filter((x) => x.key !== c.key) })}
-                >
-                  <Icon name="close" />
-                </button>
-              </div>
-              <input
-                type="text"
-                aria-label={`Name ${i + 2}. Person`}
-                placeholder="Vor- und Nachname"
-                maxLength={80}
-                value={c.name}
-                onChange={(e) => updateCompanion(c.key, { name: e.target.value })}
-              />
-              <MealFields person={c} onChange={(patch) => updateCompanion(c.key, patch)} who={`${i + 2}. Person`} />
-            </div>
+            <PersonCard
+              key={c.key}
+              person={c}
+              onChange={(patch) => updateCompanion(c.key, patch)}
+              label={`Person ${i + 2}`}
+              withName
+              onRemove={() => update({ companions: form.companions.filter((x) => x.key !== c.key) })}
+            />
           ))}
 
-          <button
-            type="button"
-            className="add-person"
-            onClick={() => update({ companions: [...form.companions, withKey({})] })}
-          >
+          <button type="button" className="add-person" onClick={() => update({ companions: [...form.companions, withKey({})] })}>
             <Icon name="plus" /> Weitere Person hinzufügen
           </button>
         </div>
       )}
 
       <label className="field">
-        <span className="label">Nachricht</span>
+        <span className="label">
+          Nachricht <span className="optional">(optional)</span>
+        </span>
         <textarea rows={2} maxLength={2000} value={form.message} onChange={(e) => update({ message: e.target.value })} />
       </label>
 
@@ -337,14 +344,14 @@ function GuestEditor({ guest, onSave, onCancel, onDelete }) {
 
       <div className="editor-actions">
         <button className="button" disabled={busy}>
-          {busy ? 'Speichert …' : 'Speichern'}
+          {busy ? 'Wird gespeichert …' : 'Speichern'}
         </button>
         <button type="button" className="button button-ghost" onClick={onCancel} disabled={busy}>
           Abbrechen
         </button>
         {onDelete && (
           <button type="button" className="text-button danger" onClick={handleDelete} disabled={busy}>
-            Löschen
+            <Icon name="trash" /> Löschen
           </button>
         )}
       </div>

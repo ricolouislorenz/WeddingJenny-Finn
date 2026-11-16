@@ -1,5 +1,6 @@
 // Rückmeldungen laufen über den eigenen Worker (/api/rsvp/*), der nach dem
 // Passwort-Login an Supabase weiterleitet. Der Datenbank-Schlüssel bleibt so auf dem Server.
+import { reloadForLogin } from './reauth.js'
 
 async function rpc(fn, body) {
   let res
@@ -15,8 +16,8 @@ async function rpc(fn, body) {
 
   // Login abgelaufen (z. B. Passwort geändert) → zurück zur Anmeldeseite
   if (res.status === 401) {
-    window.location.reload()
-    throw new Error('Bitte meldet euch erneut an.')
+    reloadForLogin()
+    throw new Error('Eure Anmeldung ist abgelaufen. Bitte ladet die Seite neu und meldet euch erneut an.')
   }
 
   const data = await res.json().catch(() => null)
