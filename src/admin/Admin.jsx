@@ -86,9 +86,9 @@ export default function Admin() {
 
       <header className="admin-header">
         <Monogram />
-        <p className="kicker">Jenny &amp; Finn · {WEDDING_DATE_LABEL}</p>
         <h1 className="title">Gästeliste</h1>
         <Sprig />
+        <p className="sub">Jenny &amp; Finn · {WEDDING_DATE_LABEL}</p>
       </header>
 
       <section className="stats" aria-label="Übersicht">

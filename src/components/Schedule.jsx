@@ -4,8 +4,8 @@ import PanelHead from './PanelHead.jsx'
 export default function Schedule() {
   return (
     <section className="panel" aria-labelledby="ablauf-title">
-      <PanelHead id="ablauf-title" kicker={WEDDING_DATE_LABEL} title="Ablauf">
-        <p className="sub">So haben wir uns den Tag gedacht</p>
+      <PanelHead id="ablauf-title" title="Ablauf">
+        <p className="sub">So haben wir uns den {WEDDING_DATE_LABEL} gedacht</p>
       </PanelHead>
       <ol className="timeline">
         {schedule.map((item) => (

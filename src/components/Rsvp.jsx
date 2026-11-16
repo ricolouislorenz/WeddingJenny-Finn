@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { getRsvp, saveRsvp } from '../lib/api.js'
-import { RSVP_DEADLINE } from '../content.js'
+import { menus, RSVP_DEADLINE } from '../content.js'
 import PanelHead from './PanelHead.jsx'
-import { Diamond, Monogram, Sprig } from './Ornaments.jsx'
 import { Choice, PersonCard } from './Choices.jsx'
+
+// Ablauf: Liegt für den Namen schon eine Rückmeldung vor, zeigt der Reiter eine Übersicht.
+// Über "Rückmeldung bearbeiten" geht es ins Formular – Ansicht und Eingabe sind getrennt.
 
 const NAME_KEY = 'jf-rsvp-name'
 
@@ -14,10 +16,14 @@ const storage = {
   set(v) {
     try { localStorage.setItem(NAME_KEY, v) } catch { /* privater Modus */ }
   },
+  clear() {
+    try { localStorage.removeItem(NAME_KEY) } catch { /* privater Modus */ }
+  },
 }
 
 const cleanName = (s) => s.trim().replace(/\s+/g, ' ')
 const nameKey = (s) => cleanName(s).toLowerCase()
+const menuLabel = (value) => menus.find((m) => m.value === value)?.label ?? '–'
 
 let companionSeq = 0
 const newCompanion = (c = {}) => ({
@@ -28,8 +34,8 @@ const newCompanion = (c = {}) => ({
   wish: c.wish || '',
 })
 
-const emptyForm = () => ({
-  name: storage.get(),
+const emptyForm = (name = '') => ({
+  name,
   attending: null,
   menu: '',
   allergies: '',
@@ -38,21 +44,45 @@ const emptyForm = () => ({
   message: '',
 })
 
+// Datensatz aus der Datenbank → bearbeitbares Formular
+const toForm = (r) => ({
+  name: r.name,
+  attending: r.attending,
+  menu: r.menu || '',
+  allergies: r.allergies || '',
+  wish: r.wish || '',
+  companions: (r.companions || []).map(newCompanion),
+  message: r.message || '',
+})
+
 export default function Rsvp() {
-  const [form, setForm] = useState(emptyForm)
-  const [lookup, setLookup] = useState('idle') // idle | loading | found | new
+  const [saved, setSaved] = useState(null) // letzte gespeicherte Rückmeldung
+  const [mode, setMode] = useState('edit') // view | edit
+  const [justSent, setJustSent] = useState(false)
+  const [form, setForm] = useState(() => emptyForm(storage.get()))
+  const [lookup, setLookup] = useState('idle') // idle | loading
   const [busy, setBusy] = useState(false)
-  const [done, setDone] = useState(false)
   const [error, setError] = useState('')
   const lastLookup = useRef('')
   const errorRef = useRef(null)
+  const panelRef = useRef(null)
 
   // Fehlermeldung steht direkt über dem Button – auf kleinen Bildschirmen sichtbar machen
   useEffect(() => {
     if (error) errorRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
   }, [error])
 
-  // Bekannter Name? Dann gespeicherte Angaben laden, sonst neu anlegen.
+  // Beim Wechsel zwischen Übersicht und Formular an den Anfang der Karte springen
+  const show = (next) => {
+    setMode(next)
+    setError('')
+    requestAnimationFrame(() => {
+      const top = panelRef.current?.getBoundingClientRect().top
+      if (top < 80) panelRef.current.scrollIntoView({ block: 'start', behavior: 'smooth' })
+    })
+  }
+
+  // Bekannter Name? Dann gespeicherte Rückmeldung als Übersicht zeigen.
   async function checkName(raw) {
     const key = nameKey(raw)
     if (key.length < 2 || key === lastLookup.current) return
@@ -62,24 +92,17 @@ export default function Rsvp() {
       const existing = await getRsvp(cleanName(raw))
       if (lastLookup.current !== key) return // inzwischen anderer Name eingegeben
       if (existing) {
-        setForm({
-          name: existing.name,
-          attending: existing.attending,
-          menu: existing.menu || '',
-          allergies: existing.allergies || '',
-          wish: existing.wish || '',
-          companions: (existing.companions || []).map(newCompanion),
-          message: existing.message || '',
-        })
-        setLookup('found')
-      } else {
-        setLookup('new')
+        setSaved(existing)
+        setForm(toForm(existing))
+        setJustSent(false)
+        show('view')
       }
       setError('')
     } catch (err) {
       lastLookup.current = ''
-      setLookup('idle')
       setError(err.message)
+    } finally {
+      setLookup('idle')
     }
   }
 
@@ -95,28 +118,44 @@ export default function Rsvp() {
     if (name.length < 2) return setError('Bitte gebt euren Vor- und Nachnamen ein.')
     if (form.attending === null) return setError('Bitte sagt uns, ob ihr dabei seid.')
     if (form.attending) {
-      if (!form.menu) return setError(`Bitte wählt ein Menü für ${cleanName(form.name)}.`)
+      if (!form.menu) return setError(`Bitte wählt ein Menü für ${name}.`)
       const missing = form.companions.findIndex((c) => cleanName(c.name).length < 2 || !c.menu)
       if (missing >= 0) return setError(`Bitte ergänzt Name und Menü für Person ${missing + 2}.`)
+    }
+
+    const record = {
+      ...form,
+      name,
+      companions: form.attending
+        ? form.companions.map(({ name, menu, allergies, wish }) => ({ name: cleanName(name), menu, allergies, wish }))
+        : [],
     }
 
     setBusy(true)
     setError('')
     try {
-      await saveRsvp({
-        ...form,
-        name,
-        companions: form.companions.map(({ name, menu, allergies, wish }) => ({ name: cleanName(name), menu, allergies, wish })),
-      })
+      await saveRsvp(record)
       storage.set(name)
       lastLookup.current = nameKey(name)
-      setLookup('found')
-      setDone(true)
+      setSaved({ ...record, updated_at: new Date().toISOString() })
+      setForm(toForm(record))
+      setJustSent(true)
+      show('view')
     } catch (err) {
       setError(err.message)
     } finally {
       setBusy(false)
     }
+  }
+
+  // "Nicht ihr?" – z. B. auf einem gemeinsam genutzten Gerät
+  function startOver() {
+    storage.clear()
+    lastLookup.current = ''
+    setSaved(null)
+    setJustSent(false)
+    setForm(emptyForm())
+    show('edit')
   }
 
   const update = (patch) => setForm((f) => ({ ...f, ...patch }))
@@ -125,35 +164,25 @@ export default function Rsvp() {
   const removeCompanion = (key) => setForm((f) => ({ ...f, companions: f.companions.filter((c) => c.key !== key) }))
   const addCompanion = () => setForm((f) => ({ ...f, companions: [...f.companions, newCompanion()] }))
 
-  if (done) {
-    const persons = form.companions.length + 1
-    return (
-      <section className="panel done" role="status">
-        <Monogram />
-        <h2 className="title">{form.attending ? 'Wir freuen uns auf euch!' : 'Schade, dass ihr nicht dabei seid'}</h2>
-        <Sprig />
-        <p>
-          {form.attending
-            ? `Eure Zusage${persons > 1 ? ` für ${persons} Personen` : ''} ist bei uns angekommen. Danke!`
-            : 'Danke für eure Rückmeldung – wir denken an euch.'}
-        </p>
-        <p className="hint">Falls sich etwas ändert: Mit demselben Namen könnt ihr eure Angaben jederzeit anpassen.</p>
-        <button type="button" className="button button-ghost" onClick={() => setDone(false)}>
-          Angaben ändern
-        </button>
-      </section>
-    )
+  if (saved && mode === 'view') {
+    return <Summary ref={panelRef} rsvp={saved} justSent={justSent} onEdit={() => show('edit')} onStartOver={startOver} />
   }
 
+  const editing = !!saved
+
   return (
-    <section className="panel" aria-labelledby="rsvp-title">
-      <PanelHead id="rsvp-title" kicker="Bitte gebt uns Bescheid" title="Rückmeldung">
-        {RSVP_DEADLINE && (
+    <section className="panel" aria-labelledby="rsvp-title" ref={panelRef}>
+      <PanelHead id="rsvp-title" title={editing ? 'Rückmeldung bearbeiten' : 'Rückmeldung'}>
+        {RSVP_DEADLINE && !editing && (
           <p className="deadline">
             Bitte bis zum {RSVP_DEADLINE.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         )}
-        <p className="sub">Eine Rückmeldung pro Haushalt genügt – tragt einfach alle ein, die mitkommen.</p>
+        <p className="sub">
+          {editing
+            ? 'Ändert, was ihr möchtet, und speichert am Ende.'
+            : 'Eine Rückmeldung pro Haushalt genügt – tragt einfach alle ein, die mitkommen.'}
+        </p>
       </PanelHead>
 
       <form className="form" onSubmit={submit} noValidate>
@@ -170,12 +199,18 @@ export default function Rsvp() {
             maxLength={80}
             value={form.name}
             onChange={(e) => update({ name: e.target.value })}
-            onBlur={(e) => checkName(e.target.value)}
+            onBlur={(e) => !editing && checkName(e.target.value)}
             placeholder="z. B. Anna Schmidt"
-            aria-describedby="name-hint"
+            aria-describedby={editing ? undefined : 'name-hint'}
             required
           />
-          <LookupHint state={lookup} />
+          {!editing && (
+            <span className="lookup" id="name-hint">
+              {lookup === 'loading'
+                ? 'Einen Moment, wir schauen nach …'
+                : 'Schon geantwortet? Mit demselben Namen seht ihr eure Rückmeldung und könnt sie ändern.'}
+            </span>
+          )}
         </div>
 
         <fieldset className="choice-row">
@@ -235,30 +270,83 @@ export default function Rsvp() {
           </p>
         )}
 
-        <button className="button button-block" disabled={busy || lookup === 'loading'}>
-          {busy ? 'Wird gesendet …' : lookup === 'found' ? 'Änderungen speichern' : 'Rückmeldung senden'}
-        </button>
+        <div className="form-actions">
+          <button className="button button-block" disabled={busy || lookup === 'loading'}>
+            {busy ? 'Wird gesendet …' : editing ? 'Änderungen speichern' : 'Rückmeldung senden'}
+          </button>
+          {editing && (
+            <button
+              type="button"
+              className="button button-ghost button-block"
+              disabled={busy}
+              onClick={() => {
+                setForm(toForm(saved))
+                show('view')
+              }}
+            >
+              Abbrechen
+            </button>
+          )}
+        </div>
       </form>
     </section>
   )
 }
 
-function LookupHint({ state }) {
-  if (state === 'loading')
-    return (
-      <span className="lookup" id="name-hint">
-        Einen Moment, wir schauen nach …
-      </span>
-    )
-  if (state === 'found')
-    return (
-      <span className="lookup lookup-found" id="name-hint">
-        <Diamond /> Willkommen zurück! Eure Angaben sind geladen – ändert einfach, was ihr möchtet.
-      </span>
-    )
+// Übersicht einer gespeicherten Rückmeldung
+function Summary({ ref, rsvp, justSent, onEdit, onStartOver }) {
+  const persons = rsvp.attending
+    ? [{ name: rsvp.name, menu: rsvp.menu, allergies: rsvp.allergies }, ...(rsvp.companions || [])]
+    : []
+  const updated = rsvp.updated_at
+    ? new Date(rsvp.updated_at).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+    : null
+
   return (
-    <span className="lookup" id="name-hint">
-      Schon geantwortet? Mit demselben Namen ladet ihr eure Angaben und könnt sie ändern.
-    </span>
+    <section className="panel summary" ref={ref} aria-labelledby="rsvp-title" role={justSent ? 'status' : undefined}>
+      <PanelHead id="rsvp-title" title={rsvp.attending ? 'Wir freuen uns auf euch!' : 'Schade, dass ihr nicht dabei seid'}>
+        <p className="sub">
+          {justSent
+            ? rsvp.attending
+              ? 'Danke! Eure Zusage ist bei uns angekommen.'
+              : 'Danke für eure Rückmeldung – wir denken an euch.'
+            : 'Eure Rückmeldung liegt uns vor. Ändert sich etwas, könnt ihr sie jederzeit anpassen.'}
+        </p>
+      </PanelHead>
+
+      <div className="summary-who">
+        <p className="names">{rsvp.name}</p>
+        <p className="summary-status">
+          {rsvp.attending ? `Zusage für ${persons.length} ${persons.length === 1 ? 'Person' : 'Personen'}` : 'Absage'}
+        </p>
+      </div>
+
+      {rsvp.attending && (
+        <ul className="summary-persons">
+          {persons.map((p, i) => (
+            <li key={i}>
+              <span className="names">{p.name}</span>
+              <span className="summary-menu">{menuLabel(p.menu)}</span>
+              {p.allergies?.trim() && <span className="summary-note">Allergien: {p.allergies}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {rsvp.message?.trim() && <blockquote className="summary-message">„{rsvp.message.trim()}“</blockquote>}
+
+      <div className="summary-actions">
+        <button type="button" className="button button-block" onClick={onEdit}>
+          Rückmeldung bearbeiten
+        </button>
+        <p className="hint">
+          {updated && <>Zuletzt geändert am {updated}. </>}
+          Nicht {rsvp.name}?{' '}
+          <button type="button" className="inline-link" onClick={onStartOver}>
+            Andere Rückmeldung eintragen
+          </button>
+        </p>
+      </div>
+    </section>
   )
 }

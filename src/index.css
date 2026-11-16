@@ -88,7 +88,7 @@
 body {
   margin: 0;
   min-height: 100svh;
-  overflow-x: clip; /* das Menüband läuft über die volle Breite */
+  overflow-x: clip;
 }
 
 h1,
@@ -122,18 +122,13 @@ a {
 
 /* ---------- Typografie-Bausteine ---------- */
 
-/* Großbuchstaben mit Sperrung – wie "Einladung zur Hochzeit" auf der Karte */
-.kicker,
+/* Feldbeschriftung: Großbuchstaben mit Sperrung – wie "Einladung zur Hochzeit" auf der Karte */
 .label {
   font-family: var(--sans);
   font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-}
-
-.kicker {
-  color: var(--gold-text);
 }
 
 /* Überschriften in der Serifenschrift */
@@ -307,72 +302,57 @@ a {
 
 /* ---------- Menüband ---------- */
 
-/* Läuft über die volle Fensterbreite, klebt oben – wie eine Kopfleiste aus Papier */
+/* Schmale Papierleiste in der Spalte, klebt beim Scrollen oben */
 .tabs {
   position: sticky;
   top: 0;
   z-index: 10;
-  margin-inline: calc(50% - 50vw);
-  padding-top: env(safe-area-inset-top);
-  background: rgb(247 243 237 / 0.94);
-  border-block: 1px solid var(--gold-faint);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  margin-inline: -8px;
+  padding: max(8px, env(safe-area-inset-top)) 8px 12px;
+  background: linear-gradient(var(--bg) 72%, rgb(247 243 237 / 0));
 }
 
 .tabs-inner {
-  --tab-gap: clamp(14px, 5vw, 40px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--tab-gap);
-  width: min(100% - 16px, 620px);
-  margin-inline: auto;
-}
-
-/* kleine Raute mittig zwischen den Einträgen */
-.tab + .tab::before {
-  content: "";
-  position: absolute;
-  left: calc(var(--tab-gap) / -2 - 2.5px);
-  top: 50%;
-  width: 5px;
-  height: 5px;
-  margin-top: -2.5px;
-  background: var(--gold);
-  transform: rotate(45deg);
-  opacity: 0.7;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--paper);
+  border: 1px solid var(--gold-soft);
+  border-radius: 2px;
+  box-shadow: 0 12px 26px -20px rgb(63 84 66 / 0.45);
 }
 
 .tab {
   position: relative;
-  flex: none;
-  min-height: 54px;
+  min-height: 52px;
   padding: 0 6px;
   border: 0;
   background: transparent;
   font-family: var(--serif);
-  font-size: 1.28rem;
+  font-size: 1.25rem;
   font-weight: 500;
   color: var(--ink-soft);
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.2s, background-color 0.2s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
-.tab span {
-  position: relative;
-  padding-bottom: 3px;
+.tab + .tab {
+  border-left: 1px solid var(--gold-faint);
 }
 
-/* aktive Seite: Kursiv mit goldener Unterlinie */
+.tab span {
+  position: relative;
+  padding-bottom: 2px;
+}
+
+/* aktive Seite: Kursiv auf getöntem Grund mit goldener Unterlinie */
 .tab span::after {
   content: "";
   position: absolute;
   left: 50%;
   right: 50%;
-  bottom: -2px;
+  bottom: -1px;
   height: 1px;
   background: var(--gold);
   transition: left 0.25s ease, right 0.25s ease;
@@ -380,11 +360,13 @@ a {
 
 .tab:hover {
   color: var(--ink);
+  background: rgb(238 240 230 / 0.45);
 }
 
 .tab[aria-selected='true'] {
   color: var(--ink);
   font-style: italic;
+  background: rgb(238 240 230 / 0.7);
 }
 
 .tab[aria-selected='true'] span::after {
@@ -393,12 +375,12 @@ a {
 }
 
 .tab:focus-visible {
-  outline-offset: -6px;
+  outline-offset: -4px;
 }
 
 @media (max-width: 360px) {
   .tab {
-    font-size: 1.12rem;
+    font-size: 1.1rem;
   }
 }
 
@@ -436,6 +418,7 @@ a {
   flex-direction: column;
   gap: 30px;
   container-type: inline-size; /* Inhalte reagieren auf die Kartenbreite */
+  scroll-margin-top: 84px; /* nicht unter dem klebenden Menüband verschwinden */
 }
 
 .panel::before,
@@ -478,6 +461,7 @@ a {
 
 .panel-head h2 {
   font-size: clamp(2.3rem, 8.5vw, 2.9rem);
+  text-wrap: balance;
 }
 
 .panel-head .sprig {
@@ -570,16 +554,6 @@ textarea:focus {
 .lookup {
   font-size: 0.88rem;
   color: var(--ink-soft);
-}
-
-.lookup-found {
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
-  padding: 10px 14px;
-  border-left: 2px solid var(--gold);
-  background: var(--tint);
-  color: var(--ink);
 }
 
 fieldset {
@@ -855,32 +829,6 @@ legend {
 .button-ghost:hover {
   background: var(--tint);
   border-color: var(--ink);
-}
-
-/* ---------- Bestätigung ---------- */
-
-.done {
-  align-items: center;
-  text-align: center;
-  gap: 16px;
-}
-
-.done .monogram {
-  width: 84px;
-  height: 84px;
-  margin-bottom: 4px;
-}
-
-.done h2 {
-  font-size: clamp(2.1rem, 7vw, 2.5rem);
-}
-
-.done p {
-  max-width: 36ch;
-}
-
-.done .hint {
-  margin-top: -4px;
 }
 
 /* ---------- Ablauf ---------- */
@@ -1176,4 +1124,115 @@ legend {
     border-top: 0;
     border-left: 1px solid var(--gold-faint);
   }
+}
+
+/* ---------- Rückmeldung: Übersicht ---------- */
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary-who {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 18px 8px;
+  text-align: center;
+  border-block: 1px solid var(--gold-faint);
+}
+
+.summary-who .names {
+  font-size: 1.7rem;
+  overflow-wrap: anywhere;
+}
+
+.summary-status {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.summary-persons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.summary-persons li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  padding: 12px 0;
+  border-bottom: 1px dotted var(--gold-soft);
+}
+
+.summary-persons li:first-child {
+  padding-top: 0;
+}
+
+.summary-persons .names {
+  font-size: 1.35rem;
+  overflow-wrap: anywhere;
+}
+
+.summary-menu {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.summary-note {
+  grid-column: 1 / -1;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.summary-message {
+  margin: 0;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--gold-soft);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.2rem;
+  line-height: 1.45;
+}
+
+.summary-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.inline-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-soft);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.inline-link:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Dresscode & Co.: Überschrift, darunter die Kernaussage kursiv */
+.detail-lead {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.3rem;
+  line-height: 1.3;
+  color: var(--gold-text);
 }

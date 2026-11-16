@@ -46,7 +46,7 @@ export function Choice({ name, checked, onChange, children }) {
   )
 }
 
-// Menü, Essenshinweis und Allergien einer Person
+// Menü und Allergien einer Person
 export function MealFields({ person, onChange, who }) {
   return (
     <>
@@ -62,19 +62,6 @@ export function MealFields({ person, onChange, who }) {
           value={person.allergies}
           onChange={(e) => onChange({ allergies: e.target.value })}
           placeholder="z. B. Nüsse, Laktose"
-        />
-      </label>
-      <label className="mini-field">
-        <span>
-          Sonstiger Hinweis zum Essen <em>(optional)</em>
-        </span>
-        <input
-          type="text"
-          aria-label={`Sonstiger Hinweis zum Essen (${who})`}
-          maxLength={500}
-          value={person.wish}
-          onChange={(e) => onChange({ wish: e.target.value })}
-          placeholder="z. B. Kinderportion"
         />
       </label>
     </>
