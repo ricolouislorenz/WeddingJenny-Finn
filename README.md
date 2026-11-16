@@ -22,6 +22,10 @@ Vite + React, gehostet auf **Cloudflare Pages**, Rückmeldungen in Supabase.
 - **Schriften** (selbst gehostet in `public/fonts`, SIL Open Font License, kein Google-Request):
   - *Cormorant Garamond* – Überschriften, Namen (kursiv), Uhrzeiten, Countdown
   - *Jost* – Fließtext, Beschriftungen und Buttons
+- **Papeterie statt App-Look:** Karten mit Goldrahmen und Eckrauten wie die gedruckte Einladung,
+  fast eckige Formen, Buttons mit feiner Innenlinie. Keine Icon-Bibliothek – Schmuck kommt aus
+  `src/components/Ornaments.jsx`: Eukalyptuszweig (Trenner), J&F-Monogramm (Footer, Bestätigung,
+  Login, Favicon; Buchstaben aus Cormorant als Pfade) und Rauten (Auswahlfelder, Ablauf, Menüband).
 - **Ansprache:** durchgehend „ihr/euch“.
 
 ## Passwortschutz

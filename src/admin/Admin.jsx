@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Icon } from '../components/Icons.jsx'
 import { Choice, PersonCard } from '../components/Choices.jsx'
 import { Backdrop } from '../components/Botanical.jsx'
+import { Monogram, Sprig } from '../components/Ornaments.jsx'
 import { WEDDING_DATE_LABEL } from '../content.js'
 import { AuthError, createGuest, deleteGuest, listGuests, logout, updateGuest } from './adminApi.js'
 import { downloadCsv, menuLabel, personsOf, stats } from './guests.js'
@@ -84,11 +85,10 @@ export default function Admin() {
       </nav>
 
       <header className="admin-header">
+        <Monogram />
         <p className="kicker">Jenny &amp; Finn · {WEDDING_DATE_LABEL}</p>
         <h1 className="title">Gästeliste</h1>
-        <div className="ornament" aria-hidden="true">
-          <span />
-        </div>
+        <Sprig />
       </header>
 
       <section className="stats" aria-label="Übersicht">
@@ -128,10 +128,10 @@ export default function Admin() {
         </div>
         <div className="toolbar-actions">
           <button type="button" className="button" onClick={() => setEditing('new')} disabled={editing === 'new'}>
-            <Icon name="plus" /> Gast hinzufügen
+            Gast hinzufügen
           </button>
           <button type="button" className="button button-ghost" onClick={() => downloadCsv(guests)} disabled={!guests.length}>
-            <Icon name="download" /> CSV
+            CSV exportieren
           </button>
         </div>
       </div>
@@ -324,7 +324,7 @@ function GuestEditor({ guest, onSave, onCancel, onDelete }) {
           ))}
 
           <button type="button" className="add-person" onClick={() => update({ companions: [...form.companions, withKey({})] })}>
-            <Icon name="plus" /> Weitere Person hinzufügen
+            Weitere Person hinzufügen
           </button>
         </div>
       )}
@@ -351,7 +351,7 @@ function GuestEditor({ guest, onSave, onCancel, onDelete }) {
         </button>
         {onDelete && (
           <button type="button" className="text-button danger" onClick={handleDelete} disabled={busy}>
-            <Icon name="trash" /> Löschen
+            Rückmeldung löschen
           </button>
         )}
       </div>

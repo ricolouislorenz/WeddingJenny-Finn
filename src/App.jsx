@@ -5,6 +5,7 @@ import Schedule from './components/Schedule.jsx'
 import Info from './components/Info.jsx'
 import Facts from './components/Facts.jsx'
 import { Backdrop } from './components/Botanical.jsx'
+import { Monogram } from './components/Ornaments.jsx'
 import { WEDDING_DATE_LABEL } from './content.js'
 
 const TABS = [
@@ -75,7 +76,7 @@ export default function App() {
               className="tab"
               onClick={() => select(t.id)}
             >
-              {t.label}
+              <span>{t.label}</span>
             </button>
           ))}
         </div>
@@ -91,8 +92,7 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        <div className="ornament" aria-hidden="true"><span /></div>
-        <p className="names">Jenny &amp; Finn</p>
+        <Monogram />
         <p>Wir freuen uns auf euch · {WEDDING_DATE_LABEL}</p>
       </footer>
     </div>

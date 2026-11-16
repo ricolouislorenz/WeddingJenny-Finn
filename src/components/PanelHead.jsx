@@ -1,4 +1,6 @@
-// Einheitlicher Kopf jeder Karte: Kicker, Überschrift, Goldornament, Einleitung
+import { Sprig } from './Ornaments.jsx'
+
+// Einheitlicher Kopf jeder Karte: Kicker, Überschrift, Eukalyptuszweig, Einleitung
 export default function PanelHead({ id, kicker, title, children }) {
   return (
     <div className="panel-head">
@@ -6,9 +8,7 @@ export default function PanelHead({ id, kicker, title, children }) {
       <h2 id={id} className="title">
         {title}
       </h2>
-      <div className="ornament" aria-hidden="true">
-        <span />
-      </div>
+      <Sprig />
       {children}
     </div>
   )

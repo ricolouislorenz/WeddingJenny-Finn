@@ -35,12 +35,11 @@ export const menus = [
 ]
 
 // Ablauf des Tages – Zeiten & Texte nach Bedarf anpassen
-// icon: rings | glass | cake | camera | dinner | music
 export const schedule = [
-  { time: '15:00', icon: 'glass', title: 'Ankommen', text: 'Wir freuen uns, euch im Forsthaus zu begrüßen.' },
-  { time: '15:30', icon: 'rings', title: 'Trauung', text: 'Im Grünen geben wir uns das Jawort.' },
-  { time: '16:30', icon: 'cake', title: 'Kaffee & Kuchen', text: 'Zeit für Glückwünsche, Torte und gute Gespräche.' },
-  { time: '19:00', icon: 'dinner', title: 'Abendessen', text: 'Gemeinsam genießen wir das Buffet – danach wird gefeiert.' },
+  { time: '15:00', title: 'Ankommen', text: 'Wir freuen uns, euch im Forsthaus zu begrüßen.' },
+  { time: '15:30', title: 'Trauung', text: 'Im Grünen geben wir uns das Jawort.' },
+  { time: '16:30', title: 'Kaffee & Kuchen', text: 'Zeit für Glückwünsche, Torte und gute Gespräche.' },
+  { time: '19:00', title: 'Abendessen', text: 'Gemeinsam genießen wir das Buffet – danach wird gefeiert.' },
 ]
 
 // Häufige Fragen – BEISPIELE, bitte durch eure echten Antworten ersetzen
@@ -70,13 +69,11 @@ export const faqs = [
 // Themenblöcke unter „Gut zu wissen“ (Location kommt aus venue)
 export const infos = [
   {
-    icon: 'dress',
     label: 'Dresscode',
     title: 'Festlich-sommerlich',
     text: 'Gern mit Farbe und Kreativität – nur bitte keine Jeans und keine T-Shirts.',
   },
   {
-    icon: 'shoe',
     label: 'Schuhwerk',
     title: 'Bequem im Grünen',
     text: 'Die Trauung findet auf der Wiese statt, Pfennigabsätze versinken im Rasen. Blockabsätze oder flache Schuhe sind die bessere Wahl – und für die Tanzfläche gern ein zweites Paar.',

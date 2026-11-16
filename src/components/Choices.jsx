@@ -1,6 +1,5 @@
 import { useId } from 'react'
 import { menus } from '../content.js'
-import { Icon } from './Icons.jsx'
 
 const clean = (s) => (s || '').trim().replace(/\s+/g, ' ')
 
@@ -13,8 +12,8 @@ export function PersonCard({ person, onChange, label, withName = false, onRemove
       <div className="person-head">
         <h3 className="person-title names">{title}</h3>
         {onRemove && (
-          <button type="button" className="icon-button" aria-label={`${title} entfernen`} title="Person entfernen" onClick={onRemove}>
-            <Icon name="close" />
+          <button type="button" className="link-button" aria-label={`${title} entfernen`} onClick={onRemove}>
+            Entfernen
           </button>
         )}
       </div>

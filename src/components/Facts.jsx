@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { WEDDING_DATE, welcome } from '../content.js'
 import { downloadCalendarEvent } from '../lib/calendar.js'
-import { Icon } from './Icons.jsx'
 
 function useNow(interval) {
   const [now, setNow] = useState(Date.now)
@@ -46,7 +45,7 @@ export default function Facts({ onRsvp }) {
           Zur Rückmeldung
         </button>
         <button type="button" className="button button-ghost" onClick={downloadCalendarEvent}>
-          <Icon name="calendar" /> In den Kalender
+          In den Kalender
         </button>
       </div>
     </section>

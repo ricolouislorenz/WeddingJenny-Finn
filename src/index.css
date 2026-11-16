@@ -1,5 +1,9 @@
 /* ==========================================================================
    Jenny & Finn – Gestaltung
+   Leitidee: Die Website ist Teil der Papeterie. Karten mit feinem Goldrahmen
+   und Eckrauten wie auf der gedruckten Einladung, ein gezeichneter
+   Eukalyptuszweig als Trenner, das J&F-Monogramm – keine Icon-Bibliothek.
+
    Schriften: Cormorant Garamond (Überschriften, wie die Serifenschrift der Karte)
               Jost (Fließtext, Beschriftungen, Buttons)
    Beide selbst gehostet unter public/fonts (SIL Open Font License).
@@ -37,7 +41,8 @@
   --moss: #8ca078; /* Fokus & Akzente */
   --fern: #a0b48c;
   --gold: #b8965a; /* nur Linien & Ornamente */
-  --gold-soft: rgb(184 150 90 / 0.4);
+  --gold-soft: rgb(184 150 90 / 0.45);
+  --gold-faint: rgb(184 150 90 / 0.22);
   --gold-text: #846a3d; /* Gold für Schrift, Kontrast ≥ 4.5:1 */
 
   --bg: #f7f3ed; /* Papierton des Hintergrundbilds */
@@ -51,13 +56,14 @@
   --serif: 'Cormorant Garamond', 'Times New Roman', serif;
   --sans: 'Jost', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
 
-  /* Formen & Abstände */
-  --radius: 18px;
-  --radius-md: 12px;
-  --radius-sm: 10px;
-  --shadow: 0 1px 2px rgb(63 84 66 / 0.05), 0 14px 36px -12px rgb(63 84 66 / 0.18);
+  /* Formen: fast eckig wie Papier, nicht "App-rund" */
+  --radius: 3px;
+  --shadow: 0 1px 1px rgb(63 84 66 / 0.04), 0 22px 44px -30px rgb(63 84 66 / 0.4);
   --ring: 0 0 0 3px rgb(140 160 120 / 0.25);
   --column: 460px;
+
+  /* Raute für die Ecken der Karten */
+  --corner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3E%3Cpath d='M0-3.6 3.6 0 0 3.6-3.6 0Z' fill='%23b8965a'/%3E%3C/svg%3E");
 
   color-scheme: light;
   font-family: var(--sans);
@@ -82,6 +88,7 @@
 body {
   margin: 0;
   min-height: 100svh;
+  overflow-x: clip; /* das Menüband läuft über die volle Breite */
 }
 
 h1,
@@ -145,34 +152,31 @@ a {
   line-height: 1.1;
 }
 
-/* feine Goldlinie mit Raute, wie auf der Karte */
-.ornament {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 120px;
+/* Eukalyptuszweig (Ornaments.jsx) */
+.sprig {
+  display: block;
+  width: 172px;
+  height: auto;
   margin-inline: auto;
   color: var(--gold);
+  overflow: visible;
 }
 
-.ornament::before,
-.ornament::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold));
+.sprig .leaf {
+  fill: currentColor;
+  fill-opacity: 0.16;
 }
 
-.ornament::after {
-  background: linear-gradient(90deg, var(--gold), transparent);
+.monogram {
+  display: block;
+  color: var(--ink);
 }
 
-.ornament span {
-  width: 6px;
-  height: 6px;
-  border: 1px solid currentColor;
-  transform: rotate(45deg);
+.diamond {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  fill: var(--gold);
 }
 
 /* ---------- Seitenspalte ---------- */
@@ -183,13 +187,13 @@ a {
   padding: clamp(16px, 5vw, 56px) 0 calc(32px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
 @media (min-width: 700px) {
   .page {
     width: min(100% - 64px, 620px);
-    gap: 32px;
+    gap: 36px;
   }
 }
 
@@ -206,15 +210,14 @@ a {
 
 /* ---------- Einladung ---------- */
 
-/* Die Karte ist ein Container: die Linkfläche skaliert mit ihrer Breite */
 .invitation {
   position: relative;
-  border-radius: 6px;
+  border-radius: 2px;
   overflow: hidden;
   box-shadow:
-    0 0 0 1px rgb(184 150 90 / 0.2),
+    0 0 0 1px var(--gold-faint),
     0 2px 4px rgb(63 84 66 / 0.06),
-    0 28px 56px -24px rgb(63 84 66 / 0.45);
+    0 30px 60px -28px rgb(63 84 66 / 0.5);
 }
 
 .invitation-card {
@@ -230,7 +233,7 @@ a {
   top: 80%;
   width: 32%;
   height: 9.5%;
-  border-radius: 6px;
+  border-radius: 2px;
   transition: background-color 0.2s, box-shadow 0.2s;
 }
 
@@ -246,14 +249,16 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 22px;
+  gap: 24px;
   text-align: center;
 }
 
 .welcome {
   max-width: 40ch;
-  font-size: 1.06rem;
-  line-height: 1.7;
+  font-family: var(--serif);
+  font-size: 1.32rem;
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 .countdown {
@@ -269,8 +274,8 @@ a {
 .countdown strong {
   display: block;
   font-family: var(--serif);
-  font-size: clamp(2.2rem, 9vw, 2.8rem);
-  font-weight: 500;
+  font-size: clamp(2.3rem, 9vw, 2.9rem);
+  font-weight: 400;
   line-height: 1.05;
   font-variant-numeric: lining-nums tabular-nums;
 }
@@ -302,56 +307,103 @@ a {
 
 /* ---------- Menüband ---------- */
 
+/* Läuft über die volle Fensterbreite, klebt oben – wie eine Kopfleiste aus Papier */
 .tabs {
   position: sticky;
   top: 0;
   z-index: 10;
-  margin-inline: -8px;
-  padding: 8px;
-  padding-top: max(8px, env(safe-area-inset-top));
-  background: linear-gradient(var(--bg) 65%, rgb(247 243 237 / 0));
+  margin-inline: calc(50% - 50vw);
+  padding-top: env(safe-area-inset-top);
+  background: rgb(247 243 237 / 0.94);
+  border-block: 1px solid var(--gold-faint);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 
 .tabs-inner {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  padding: 4px;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: 0 6px 20px -12px rgb(63 84 66 / 0.25);
+  --tab-gap: clamp(14px, 5vw, 40px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--tab-gap);
+  width: min(100% - 16px, 620px);
+  margin-inline: auto;
+}
+
+/* kleine Raute mittig zwischen den Einträgen */
+.tab + .tab::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--tab-gap) / -2 - 2.5px);
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  opacity: 0.7;
 }
 
 .tab {
-  min-height: 44px;
+  position: relative;
+  flex: none;
+  min-height: 54px;
   padding: 0 6px;
   border: 0;
-  border-radius: 10px;
   background: transparent;
-  font: inherit;
-  font-size: 0.78rem;
+  font-family: var(--serif);
+  font-size: 1.28rem;
   font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink);
+  color: var(--ink-soft);
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition: color 0.2s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
+.tab span {
+  position: relative;
+  padding-bottom: 3px;
+}
+
+/* aktive Seite: Kursiv mit goldener Unterlinie */
+.tab span::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  right: 50%;
+  bottom: -2px;
+  height: 1px;
+  background: var(--gold);
+  transition: left 0.25s ease, right 0.25s ease;
+}
+
 .tab:hover {
-  background: var(--tint);
+  color: var(--ink);
 }
 
 .tab[aria-selected='true'] {
-  background: var(--ink);
-  color: var(--paper);
+  color: var(--ink);
+  font-style: italic;
+}
+
+.tab[aria-selected='true'] span::after {
+  left: 0;
+  right: 0;
+}
+
+.tab:focus-visible {
+  outline-offset: -6px;
+}
+
+@media (max-width: 360px) {
+  .tab {
+    font-size: 1.12rem;
+  }
 }
 
 .panel-view:not([hidden]) {
-  animation: fade-in 0.3s ease both;
+  animation: fade-in 0.35s ease both;
 }
 
 @keyframes fade-in {
@@ -372,25 +424,50 @@ a {
 
 /* ---------- Karten ---------- */
 
+/* Papierkarte mit Goldrahmen und Eckrauten – wie die gedruckte Einladung */
 .panel {
+  position: relative;
   background: var(--paper);
-  border: 1px solid rgb(223 226 212 / 0.7);
-  border-radius: var(--radius);
+  border: 1px solid var(--gold-faint);
+  border-radius: 2px;
   box-shadow: var(--shadow);
-  padding: clamp(22px, 6vw, 28px) clamp(18px, 5.5vw, 28px) clamp(24px, 6vw, 32px);
+  padding: clamp(32px, 9vw, 40px) clamp(22px, 6.5vw, 30px) clamp(32px, 9vw, 40px);
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 30px;
   container-type: inline-size; /* Inhalte reagieren auf die Kartenbreite */
+}
+
+.panel::before,
+.panel::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+/* innerer Rahmen */
+.panel::before {
+  inset: 8px;
+  border: 1px solid var(--gold-soft);
+}
+
+/* Rauten auf den vier Ecken des inneren Rahmens */
+.panel::after {
+  inset: 4px;
+  background:
+    var(--corner) left top / 9px no-repeat,
+    var(--corner) right top / 9px no-repeat,
+    var(--corner) left bottom / 9px no-repeat,
+    var(--corner) right bottom / 9px no-repeat;
 }
 
 @media (min-width: 700px) {
   .panel {
-    padding: 40px 44px 44px;
+    padding: 52px 52px 52px;
   }
 }
 
-/* Kopf jeder Karte: Kicker, Überschrift, Ornament, Einleitung */
+/* Kopf jeder Karte: Kicker, Überschrift, Zweig, Einleitung */
 .panel-head {
   display: flex;
   flex-direction: column;
@@ -400,11 +477,11 @@ a {
 }
 
 .panel-head h2 {
-  font-size: clamp(2.2rem, 8vw, 2.75rem);
+  font-size: clamp(2.3rem, 8.5vw, 2.9rem);
 }
 
-.panel-head .ornament {
-  margin-top: 2px;
+.panel-head .sprig {
+  margin-block: 2px 4px;
 }
 
 .sub {
@@ -415,9 +492,9 @@ a {
 }
 
 .deadline {
-  padding: 4px 14px;
-  border-radius: 999px;
-  background: var(--tint);
+  padding: 3px 14px;
+  border: 1px solid var(--gold-soft);
+  border-radius: 2px;
   font-size: 0.8rem;
   font-weight: 500;
   letter-spacing: 0.04em;
@@ -428,7 +505,7 @@ a {
 .form {
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: 28px;
 }
 
 .field {
@@ -461,7 +538,7 @@ textarea {
   color: var(--ink);
   background: var(--field);
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   padding: 11px 14px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -497,19 +574,12 @@ textarea:focus {
 
 .lookup-found {
   display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
+  gap: 10px;
+  align-items: baseline;
+  padding: 10px 14px;
+  border-left: 2px solid var(--gold);
   background: var(--tint);
   color: var(--ink);
-}
-
-.lookup-found .icon {
-  flex: none;
-  width: 18px;
-  height: 18px;
-  margin-top: 2px;
 }
 
 fieldset {
@@ -539,22 +609,33 @@ legend {
   gap: 8px;
 }
 
+/* Auswahlfeld mit Raute als Markierung: hohl = frei, gold gefüllt = gewählt */
 .choice {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 46px;
+  gap: 10px;
+  min-height: 48px;
   padding: 8px 12px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   background: var(--field);
   font-size: 0.98rem;
   text-align: center;
   cursor: pointer;
   transition: border-color 0.2s, background-color 0.2s, color 0.2s;
   -webkit-tap-highlight-color: transparent;
+}
+
+.choice::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--gold);
+  transform: rotate(45deg);
+  transition: background-color 0.2s;
 }
 
 .choice:hover {
@@ -574,6 +655,11 @@ legend {
   background: var(--ink);
   border-color: var(--ink);
   color: var(--paper);
+}
+
+.choice.is-checked::before {
+  background: #d4b47a;
+  border-color: #d4b47a;
 }
 
 .choice:has(input:focus-visible) {
@@ -597,34 +683,60 @@ legend {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 16px;
+  padding: 16px 16px 18px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: rgb(238 240 230 / 0.45);
+  border-top: 2px solid var(--gold-soft);
+  border-radius: var(--radius);
+  background: rgb(238 240 230 / 0.4);
 }
 
 .person-head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
-  margin: -4px -6px -4px 0;
-  min-height: 36px;
+  min-height: 32px;
 }
 
 .person-title {
-  font-size: 1.4rem;
+  font-size: 1.45rem;
   overflow-wrap: anywhere;
+}
+
+/* "Entfernen" als dezenter Textlink statt Kreuz-Icon */
+.link-button {
+  flex: none;
+  min-height: 36px;
+  margin: -6px -8px -6px 0;
+  padding: 6px 8px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-soft);
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.link-button:hover {
+  color: var(--error);
+  text-decoration-color: currentColor;
 }
 
 .add-person {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 48px;
-  border: 1px dashed var(--moss);
-  border-radius: var(--radius-sm);
+  gap: 10px;
+  min-height: 50px;
+  border: 1px dashed var(--gold-soft);
+  border-radius: var(--radius);
   background: transparent;
   font: inherit;
   font-size: 0.78rem;
@@ -636,20 +748,26 @@ legend {
   transition: background-color 0.2s, border-color 0.2s;
 }
 
-.add-person:hover {
-  background: var(--tint);
-  border-style: solid;
+/* Pluszeichen aus der Serifenschrift */
+.add-person::before {
+  content: "+";
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 0;
+  letter-spacing: 0;
+  color: var(--gold-text);
 }
 
-.add-person .icon {
-  width: 16px;
-  height: 16px;
+.add-person:hover {
+  background: rgb(238 240 230 / 0.6);
+  border-style: solid;
 }
 
 .error {
   color: var(--error);
   background: var(--error-bg);
-  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--error);
   padding: 10px 14px;
   font-size: 0.94rem;
 }
@@ -679,36 +797,39 @@ legend {
 
 /* ---------- Buttons ---------- */
 
+/* Doppelte Linie innen – wie ein geprägter Rahmen */
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  min-height: 50px;
-  padding: 12px 22px;
+  min-height: 52px;
+  padding: 12px 24px;
   border: 1px solid var(--ink);
-  border-radius: var(--radius-md);
+  border-radius: 2px;
   background: var(--ink);
+  box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 4px rgb(212 180 122 / 0.55);
   color: var(--paper);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   text-decoration: none;
   line-height: 1.3;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
   touch-action: manipulation;
 }
 
 .button:hover {
   background: var(--ink-strong);
   border-color: var(--ink-strong);
+  box-shadow: inset 0 0 0 3px var(--ink-strong), inset 0 0 0 4px rgb(212 180 122 / 0.8);
 }
 
 .button:active {
-  transform: scale(0.99);
+  transform: translateY(1px);
 }
 
 .button:disabled {
@@ -716,47 +837,24 @@ legend {
   cursor: progress;
 }
 
-.button .icon {
-  flex: none;
-  width: 18px;
-  height: 18px;
-}
-
 .button-block {
   width: 100%;
 }
 
+.button-ghost,
+.button-ghost:hover {
+  box-shadow: none;
+}
+
 .button-ghost {
-  background: rgb(253 252 248 / 0.7);
+  background: rgb(253 252 248 / 0.75);
+  border-color: var(--ink);
   color: var(--ink);
 }
 
 .button-ghost:hover {
   background: var(--tint);
   border-color: var(--ink);
-}
-
-.icon-button {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--ink-soft);
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.icon-button:hover {
-  background: var(--error-bg);
-  color: var(--error);
-}
-
-.icon-button .icon {
-  width: 18px;
-  height: 18px;
 }
 
 /* ---------- Bestätigung ---------- */
@@ -767,8 +865,14 @@ legend {
   gap: 16px;
 }
 
+.done .monogram {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 4px;
+}
+
 .done h2 {
-  font-size: clamp(2rem, 7vw, 2.4rem);
+  font-size: clamp(2.1rem, 7vw, 2.5rem);
 }
 
 .done p {
@@ -777,21 +881,6 @@ legend {
 
 .done .hint {
   margin-top: -4px;
-}
-
-.done-icon {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 1px solid var(--gold-soft);
-  background: var(--tint);
-}
-
-.done-icon .icon {
-  width: 26px;
-  height: 26px;
 }
 
 /* ---------- Ablauf ---------- */
@@ -803,23 +892,22 @@ legend {
   position: relative;
 }
 
-/* Linie läuft durch die Mitte der Symbole */
+/* feine Goldlinie durch die Rauten */
 .timeline::before {
   content: "";
   position: absolute;
-  top: 20px;
-  bottom: 20px;
-  left: calc(54px + 14px + 20px);
+  top: 14px;
+  bottom: 14px;
+  left: calc(72px + 20px);
   width: 1px;
-  background: linear-gradient(var(--gold-soft), var(--line));
+  background: linear-gradient(var(--gold-soft), var(--gold-faint));
 }
 
 .timeline li {
   display: grid;
-  grid-template-columns: 54px 40px 1fr;
-  gap: 14px;
-  align-items: start;
-  padding-bottom: 26px;
+  grid-template-columns: 72px 1fr;
+  column-gap: 40px;
+  padding-bottom: 30px;
   position: relative;
 }
 
@@ -827,41 +915,70 @@ legend {
   padding-bottom: 0;
 }
 
+/* Raute auf der Linie */
+.timeline li::before {
+  content: "";
+  position: absolute;
+  left: calc(72px + 20px - 4px);
+  top: 13px;
+  width: 9px;
+  height: 9px;
+  background: var(--paper);
+  border: 1px solid var(--gold);
+  transform: rotate(45deg);
+}
+
+.timeline li:first-child::before {
+  background: var(--gold);
+}
+
 .timeline time {
-  padding-top: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   font-family: var(--serif);
-  font-size: 1.3rem;
-  font-weight: 600;
-  line-height: 1.2;
-  text-align: right;
+  font-size: 1.6rem;
+  font-weight: 500;
+  line-height: 1.15;
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-.timeline-icon {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--paper);
-  border: 1px solid var(--gold-soft);
-  position: relative; /* über der Linie */
-}
-
-.timeline-icon .icon {
-  width: 19px;
-  height: 19px;
+.timeline time small {
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
 .timeline h3 {
-  padding-top: 2px;
-  font-size: 1.45rem;
+  font-size: 1.6rem;
 }
 
 .timeline p {
-  margin-top: 2px;
+  margin-top: 4px;
   font-size: 0.95rem;
   color: var(--ink-soft);
+}
+
+@media (max-width: 380px) {
+  .timeline li {
+    grid-template-columns: 60px 1fr;
+    column-gap: 32px;
+  }
+
+  .timeline::before {
+    left: calc(60px + 16px);
+  }
+
+  .timeline li::before {
+    left: calc(60px + 16px - 4px);
+  }
+
+  .timeline time {
+    font-size: 1.4rem;
+  }
 }
 
 /* ---------- Gut zu wissen ---------- */
@@ -884,12 +1001,12 @@ legend {
 }
 
 .detail + .detail {
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--gold-faint);
 }
 
 .detail h3,
 .venue h3 {
-  font-size: 1.75rem;
+  font-size: 1.85rem;
 }
 
 .detail p:last-child {
@@ -897,43 +1014,17 @@ legend {
   font-size: 0.97rem;
 }
 
-.detail-icon {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  margin-bottom: 4px;
-  border: 1px solid var(--gold-soft);
-  border-radius: 50%;
-  color: var(--ink);
-}
-
-.detail-icon .icon {
-  width: 24px;
-  height: 24px;
-}
-
-/* Location als kleine Karte mit feinem Doppelrahmen – wie die gedruckte Karte */
+/* Location: eigene getönte Fläche innerhalb der Karte */
 .venue {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   padding: 32px 22px;
   text-align: center;
-  background: #fffefb;
-  border: 1px solid var(--gold-soft);
-  border-radius: 4px;
-}
-
-.venue::before {
-  content: "";
-  position: absolute;
-  inset: 5px;
-  border: 1px solid rgb(184 150 90 / 0.2);
-  border-radius: 2px;
-  pointer-events: none;
+  background: rgb(238 240 230 / 0.6);
+  border-top: 1px solid var(--gold-soft);
+  border-bottom: 1px solid var(--gold-soft);
 }
 
 .venue address {
@@ -949,7 +1040,6 @@ legend {
 }
 
 .venue .button {
-  position: relative;
   margin-top: 12px;
 }
 
@@ -970,11 +1060,11 @@ legend {
 }
 
 .faq-head h3 {
-  font-size: 1.9rem;
+  font-size: 2rem;
 }
 
 .faq details {
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--gold-faint);
 }
 
 .faq summary {
@@ -982,9 +1072,12 @@ legend {
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  min-height: 56px;
+  min-height: 60px;
   padding: 12px 0;
-  font-weight: 500;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
   cursor: pointer;
   list-style: none;
   -webkit-tap-highlight-color: transparent;
@@ -998,26 +1091,38 @@ legend {
   color: var(--ink-strong);
 }
 
-.faq summary:hover .faq-toggle {
-  background: #e3e7d8;
-}
-
+/* feines Plus aus zwei Linien, wird beim Öffnen zum Minus */
 .faq-toggle {
+  position: relative;
   flex: none;
-  width: 28px;
-  height: 28px;
-  padding: 5px;
-  border-radius: 50%;
-  background: var(--tint);
-  transition: transform 0.25s ease, background-color 0.2s;
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+  color: var(--gold);
 }
 
-.faq details[open] .faq-toggle {
-  transform: rotate(45deg);
+.faq-toggle::before,
+.faq-toggle::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: currentColor;
+  transition: transform 0.25s ease;
+}
+
+.faq-toggle::after {
+  transform: rotate(90deg);
+}
+
+.faq details[open] .faq-toggle::after {
+  transform: rotate(0deg);
 }
 
 .faq details p {
-  padding: 0 44px 18px 0;
+  padding: 0 36px 20px 0;
   font-size: 0.97rem;
   color: var(--ink-soft);
 }
@@ -1032,16 +1137,18 @@ legend {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding-top: 12px;
+  gap: 10px;
+  padding-top: 16px;
   text-align: center;
 }
 
-.footer .names {
-  font-size: 2.1rem;
+.footer .monogram {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 4px;
 }
 
-.footer p:last-child {
+.footer p {
   font-size: 0.7rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1067,6 +1174,6 @@ legend {
 
   .detail + .detail {
     border-top: 0;
-    border-left: 1px solid var(--gold-soft);
+    border-left: 1px solid var(--gold-faint);
   }
 }

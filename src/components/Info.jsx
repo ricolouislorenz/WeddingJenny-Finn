@@ -1,5 +1,4 @@
 import { faqs, infos, venue } from '../content.js'
-import { Icon } from './Icons.jsx'
 import PanelHead from './PanelHead.jsx'
 
 export default function Info() {
@@ -12,9 +11,6 @@ export default function Info() {
       <div className="details">
         {infos.map((info) => (
           <article className="detail" key={info.label}>
-            <span className="detail-icon">
-              <Icon name={info.icon} />
-            </span>
             <p className="kicker">{info.label}</p>
             <h3 className="title">{info.title}</h3>
             <p>{info.text}</p>
@@ -22,11 +18,7 @@ export default function Info() {
         ))}
       </div>
 
-      {/* Location als eigene kleine Karte – wie die Anfahrtskarte einer gedruckten Einladung */}
       <article className="venue">
-        <span className="detail-icon">
-          <Icon name="pin" />
-        </span>
         <p className="kicker">Location</p>
         <h3 className="title">{venue.fullName}</h3>
         <address>
@@ -36,7 +28,7 @@ export default function Info() {
         </address>
         <p className="venue-note">{venue.description}</p>
         <a className="button" href={venue.mapsUrl} target="_blank" rel="noopener noreferrer">
-          <Icon name="pin" /> Route planen
+          Route planen
         </a>
       </article>
 
@@ -49,7 +41,7 @@ export default function Info() {
           <details key={f.q}>
             <summary>
               {f.q}
-              <Icon name="plus" className="faq-toggle" />
+              <span className="faq-toggle" aria-hidden="true" />
             </summary>
             <p>{f.a}</p>
           </details>

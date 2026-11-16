@@ -10,8 +10,8 @@
     <link rel="preload" href="/fonts/jost-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/cormorant-garamond-latin-wght-italic.woff2" as="font" type="font/woff2" crossorigin />
     <style>
-      /* Eigenständige Anmeldeseite – bewusst ohne App-Bundle, damit vor dem Login nichts geladen wird */
-      /* gleiche Schriften wie die Hauptseite (src/index.css) */
+      /* Eigenständige Anmeldeseite – bewusst ohne App-Bundle, damit vor dem Login nichts geladen wird.
+         Gestaltung wie src/index.css: Papierkarte mit Goldrahmen, Monogramm, Eukalyptuszweig. */
       @font-face {
         font-family: 'Cormorant Garamond';
         src: url('/fonts/cormorant-garamond-latin-wght-italic.woff2') format('woff2');
@@ -27,20 +27,21 @@
       }
 
       :root {
-        /* Farben wie in src/index.css */
         --ink: #3f5442;
         --ink-strong: #32443a;
         --ink-soft: #5c6d5d;
         --moss: #8ca078;
         --bg: #f7f3ed;
         --paper: #fdfcf8;
-        --tint: #eef0e6;
         --line: #dfe2d4;
         --gold: #b8965a;
+        --gold-soft: rgb(184 150 90 / 0.45);
+        --gold-faint: rgb(184 150 90 / 0.22);
         --gold-text: #846a3d;
         --error: #9b3d2e;
         --serif: 'Cormorant Garamond', 'Times New Roman', serif;
         --sans: 'Jost', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+        --corner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3E%3Cpath d='M0-3.6 3.6 0 0 3.6-3.6 0Z' fill='%23b8965a'/%3E%3C/svg%3E");
 
         color-scheme: light;
         font-family: var(--sans);
@@ -61,19 +62,79 @@
         min-height: 100svh;
         display: grid;
         place-items: center;
-        padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+        padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
         background:
-          radial-gradient(ellipse 70% 50% at 50% 30%, #fbfaf4, transparent 70%),
+          radial-gradient(ellipse 60% 45% at 50% 40%, #fdfcf6, transparent 75%),
           var(--bg);
       }
 
+      /* Papierkarte mit Doppelrahmen und Eckrauten */
       main {
-        width: min(100%, 400px);
+        position: relative;
+        width: min(100%, 420px);
+        padding: 48px clamp(26px, 8vw, 44px) 44px;
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 22px;
         text-align: center;
+        background: var(--paper);
+        border: 1px solid var(--gold-faint);
+        border-radius: 2px;
+        box-shadow: 0 1px 1px rgb(63 84 66 / 0.04), 0 30px 60px -34px rgb(63 84 66 / 0.45);
+        animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      }
+
+      main::before,
+      main::after {
+        content: "";
+        position: absolute;
+        pointer-events: none;
+      }
+
+      main::before {
+        inset: 8px;
+        border: 1px solid var(--gold-soft);
+      }
+
+      main::after {
+        inset: 4px;
+        background:
+          var(--corner) left top / 9px no-repeat,
+          var(--corner) right top / 9px no-repeat,
+          var(--corner) left bottom / 9px no-repeat,
+          var(--corner) right bottom / 9px no-repeat;
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+      }
+
+      header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .monogram {
+        width: 76px;
+        height: 76px;
+        margin-bottom: 6px;
+        color: var(--ink);
+      }
+
+      .eyebrow {
+        margin: 0;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.26em;
+        padding-left: 0.26em;
+        text-transform: uppercase;
+        color: var(--gold-text);
       }
 
       h1 {
@@ -81,7 +142,7 @@
         font-family: var(--serif);
         font-style: italic;
         font-weight: 500;
-        font-size: clamp(3rem, 14vw, 3.8rem);
+        font-size: clamp(2.9rem, 13vw, 3.5rem);
         line-height: 1.05;
       }
 
@@ -89,19 +150,21 @@
         color: var(--gold);
       }
 
-      .eyebrow {
-        margin: 0 0 6px;
-        font-size: 0.72rem;
-        font-weight: 500;
-        letter-spacing: 0.3em;
-        padding-left: 0.3em;
-        text-transform: uppercase;
-        color: var(--gold-text);
+      .sprig {
+        width: 172px;
+        height: auto;
+        color: var(--gold);
+        overflow: visible;
+      }
+
+      .sprig .leaf {
+        fill: currentColor;
+        fill-opacity: 0.16;
       }
 
       .intro {
-        margin: 8px auto 0;
-        max-width: 32ch;
+        margin: 2px auto 0;
+        max-width: 30ch;
         color: var(--ink-soft);
       }
 
@@ -132,8 +195,8 @@
         letter-spacing: 0.06em;
         background: #fff;
         border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 13px 48px;
+        border-radius: 3px;
+        padding: 13px 84px;
         transition: border-color 0.2s, box-shadow 0.2s;
       }
 
@@ -143,49 +206,53 @@
         box-shadow: 0 0 0 3px rgb(140 160 120 / 0.25);
       }
 
+      /* "Zeigen" als Textlink statt Augen-Icon */
       .toggle {
         position: absolute;
-        right: 6px;
+        right: 4px;
         top: 50%;
         transform: translateY(-50%);
-        display: grid;
-        place-items: center;
-        width: 38px;
-        height: 38px;
+        min-height: 40px;
+        padding: 0 10px;
         border: 0;
-        border-radius: 50%;
         background: transparent;
-        color: var(--ink);
+        font: inherit;
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        text-decoration: underline;
+        text-decoration-color: var(--gold-soft);
+        text-underline-offset: 4px;
         cursor: pointer;
       }
 
       .toggle:hover {
-        background: var(--tint);
-      }
-
-      .toggle svg {
-        width: 20px;
-        height: 20px;
+        color: var(--ink);
       }
 
       button[type='submit'] {
-        min-height: 50px;
-        border: 0;
-        border-radius: 12px;
+        margin-top: 6px;
+        min-height: 52px;
+        border: 1px solid var(--ink);
+        border-radius: 2px;
         background: var(--ink);
+        box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 4px rgb(212 180 122 / 0.55);
         color: var(--paper);
         font: inherit;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         font-weight: 500;
-        letter-spacing: 0.16em;
+        letter-spacing: 0.18em;
         text-transform: uppercase;
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: background-color 0.2s, box-shadow 0.2s;
         touch-action: manipulation;
       }
 
       button[type='submit']:hover {
         background: var(--ink-strong);
+        box-shadow: inset 0 0 0 3px var(--ink-strong), inset 0 0 0 4px rgb(212 180 122 / 0.8);
       }
 
       button:disabled {
@@ -208,10 +275,6 @@
         display: none;
       }
 
-      button[type='submit'] {
-        margin-top: 6px;
-      }
-
       .shake {
         animation: shake 0.4s ease;
       }
@@ -221,58 +284,37 @@
         40%, 80% { transform: translateX(6px); }
       }
 
-      /* ---------- Umschlag ---------- */
-
-      .envelope {
-        width: min(100%, 380px);
-        height: auto;
-        margin-top: 4px;
-        filter: drop-shadow(0 18px 24px rgb(69 91 70 / 0.18));
-      }
-
-      .card {
-        transform-box: view-box;
-        animation: float 5s ease-in-out infinite;
-        transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
-      }
-
-      @keyframes float {
-        50% { transform: translateY(-4px); }
-      }
-
-      /* Nach erfolgreichem Login gleitet die Karte heraus */
-      .is-open .card {
-        animation: none;
-        transform: translateY(-46px);
-      }
-
+      /* Nach erfolgreichem Login hebt sich die Karte und blendet aus */
       .is-open main {
-        transition: opacity 0.4s ease 0.55s;
+        transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.5s ease 0.2s;
+        transform: translateY(-14px);
         opacity: 0;
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .card,
+        main,
         .shake {
           animation: none;
         }
-      }
-
-      .visually-hidden {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-        white-space: nowrap;
+        .is-open main {
+          transition: none;
+        }
       }
     </style>
   </head>
   <body>
     <main>
       <header>
+        <svg class="monogram" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+          <circle cx="50" cy="50" r="47" fill="none" stroke="#b8965a" stroke-width="0.8" />
+          <circle cx="50" cy="50" r="44" fill="none" stroke="#b8965a" stroke-width="0.4" />
+          <path fill="currentColor" d="M17.78 78.35L17.78 78.35Q17.66 78.42 17.46 78.10Q17.27 77.78 17.40 77.65L17.40 77.65Q20.41 75.86 22.07 72.27Q23.74 68.69 24.70 63.44L24.70 63.44L30.39 31.18Q30.90 28.43 30.14 27.60Q29.37 26.77 26.23 26.77L26.23 26.77Q26.10 26.77 26.10 26.38Q26.10 26 26.23 26L26.23 26Q27.51 26 29.14 26.10Q30.78 26.19 32.57 26.19L32.57 26.19Q34.62 26.19 36.22 26.10Q37.82 26 39.03 26L39.03 26Q39.22 26 39.22 26.38Q39.22 26.77 39.03 26.77L39.03 26.77Q36.98 26.77 35.90 27.15Q34.81 27.54 34.30 28.50Q33.78 29.46 33.46 31.31L33.46 31.31L28.09 61.71Q27.19 66.70 25.94 69.81Q24.70 72.91 22.78 74.86Q20.86 76.82 17.78 78.35Z" />
+          <path fill="currentColor" d="M53.83 76L53.83 76Q53.64 76 53.64 75.62Q53.64 75.23 53.83 75.23L53.83 75.23Q55.88 75.23 56.97 74.91Q58.06 74.59 58.60 73.63Q59.14 72.67 59.46 70.82L59.46 70.82L64.65 41.18Q65.16 38.50 64.46 37.63Q63.75 36.77 60.62 36.77L60.62 36.77Q60.49 36.77 60.49 36.38Q60.49 36 60.62 36L60.62 36L85.06 36Q85.58 36 85.38 36.58L85.38 36.58Q85.26 37.73 85.03 39.20Q84.81 40.67 84.58 42.08Q84.36 43.49 84.23 44.38L84.23 44.38Q84.17 44.64 83.78 44.58Q83.40 44.51 83.46 44.32L83.46 44.32Q84.04 40.99 82.98 38.94Q81.93 36.90 79.50 36.90L79.50 36.90L73.16 36.90Q71.11 36.90 70.06 37.22Q69 37.54 68.52 38.46Q68.04 39.39 67.66 41.25L67.66 41.25L62.54 70.56Q62.22 72.48 62.44 73.47Q62.66 74.46 64.10 74.85Q65.54 75.23 68.81 75.23L68.81 75.23Q68.94 75.23 68.94 75.62Q68.94 76 68.81 76L68.81 76Q67.08 76 64.87 75.94Q62.66 75.87 60.04 75.87L60.04 75.87Q58.31 75.87 56.71 75.94Q55.11 76 53.83 76ZM78.02 61.79L78.02 61.79Q77.96 62.05 77.58 62.02Q77.19 61.98 77.26 61.73L77.26 61.73Q77.77 58.85 77 57.70Q76.23 56.54 73.61 56.54L73.61 56.54L63.05 56.54L63.24 55.33L74.06 55.33Q76.49 55.33 77.58 54.30Q78.66 53.28 79.05 50.91L79.05 50.91Q79.11 50.59 79.50 50.66Q79.88 50.72 79.82 50.98L79.82 50.98Q79.56 52.77 79.34 53.79Q79.11 54.82 78.92 55.97L78.92 55.97Q78.66 57.38 78.47 58.75Q78.28 60.13 78.02 61.79Z" />
+          <path fill="#b8965a" d="M45.23 57.26L45.23 57.26Q43.93 57.26 42.91 56.74Q41.89 56.21 41.21 55.30Q40.52 54.38 40.27 53.24Q40.02 52.09 40.26 50.88L40.26 50.88Q40.52 49.67 41.28 48.75Q42.04 47.83 43.04 47.30Q44.04 46.77 45.01 46.77L45.01 46.77Q45.56 46.77 46.05 46.95Q46.53 47.12 46.90 47.56L46.90 47.56L45.87 48.51Q45.50 47.80 44.94 47.57Q44.37 47.34 43.91 47.34L43.91 47.34Q43.32 47.34 42.78 47.73Q42.24 48.11 41.85 48.75Q41.47 49.39 41.27 50.18L41.27 50.18Q41.01 51.54 41.32 52.70Q41.62 53.85 42.32 54.71Q43.01 55.57 43.96 56.04Q44.90 56.52 45.94 56.52L45.94 56.52Q47.37 56.52 48.47 55.81Q49.57 55.11 50.24 53.71Q50.91 52.31 51.00 50.20L51.00 50.20L51.35 50.33Q51.17 52.67 50.35 54.21Q49.52 55.75 48.20 56.51Q46.88 57.26 45.23 57.26ZM41.03 52.69L41.03 52.69L40.83 52.49Q41.62 51.83 42.59 51.08Q43.56 50.33 44.55 49.54Q45.54 48.75 46.37 47.94Q47.19 47.12 47.70 46.32Q48.20 45.52 48.20 44.75L48.20 44.75Q48.20 44.33 48.09 44.10Q47.98 43.87 47.83 43.72Q47.67 43.58 47.56 43.45Q47.45 43.32 47.45 43.07L47.45 43.07Q47.45 42.79 47.62 42.62Q47.78 42.46 48.05 42.46L48.05 42.46Q48.49 42.46 48.80 42.87Q49.10 43.27 49.10 44.00L49.10 44.00Q49.10 44.92 48.54 45.87Q47.98 46.81 47.07 47.74Q46.16 48.66 45.08 49.54Q44 50.42 42.93 51.21Q41.87 52.01 41.03 52.69ZM47.17 51.85L47.17 51.85Q46.95 51.85 46.79 51.71Q46.64 51.57 46.64 51.19L46.64 51.19Q46.64 50.62 46.98 50.14Q47.32 49.65 47.87 49.36Q48.42 49.06 49.02 49.06L49.02 49.06Q49.59 49.06 50.20 49.31Q50.82 49.56 51.44 49.89Q52.05 50.22 52.63 50.48Q53.22 50.73 53.70 50.73L53.70 50.73Q54.01 50.73 54.17 50.61Q54.34 50.49 54.34 50.33L54.34 50.33Q54.34 50.11 54.24 49.95Q54.14 49.78 54.03 49.61Q53.92 49.43 53.92 49.21L53.92 49.21Q53.92 48.97 54.05 48.86Q54.19 48.75 54.43 48.75L54.43 48.75Q54.65 48.75 54.79 48.87Q54.93 48.99 54.93 49.39L54.93 49.39Q54.93 49.92 54.66 50.40Q54.38 50.88 53.92 51.19Q53.46 51.50 52.89 51.50L52.89 51.50Q52.34 51.50 51.72 51.24Q51.11 50.97 50.46 50.62Q49.81 50.27 49.19 50.00Q48.58 49.74 48.03 49.74L48.03 49.74Q47.70 49.74 47.52 49.88Q47.34 50.03 47.34 50.20L47.34 50.20Q47.34 50.42 47.42 50.61Q47.50 50.80 47.58 50.98Q47.65 51.17 47.65 51.37L47.65 51.37Q47.65 51.52 47.55 51.69Q47.45 51.85 47.17 51.85Z" />
+        </svg>
         <p class="eyebrow">Willkommen zur Hochzeit von</p>
         <h1>Jenny <span>&amp;</span> Finn</h1>
+        <svg class="sprig" viewBox="-100 -16 200 32" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10,0 Q48,2 88,-5"/><path class="l" d="M17.6 0.3Q25.1 0.5 27 -7.7Q18.7 -7.1 17.6 0.3Z"/><path d="M17.6 0.3L25 -5.9"/><path class="l" d="M28.4 0.4Q29.1 7.3 36.9 8.1Q35.2 0.5 28.4 0.4Z"/><path d="M28.4 0.4L35 6.4"/><path class="l" d="M39.2 0.2Q45.5 -0.1 46.7 -7.1Q39.6 -6.1 39.2 0.2Z"/><path d="M39.2 0.2L45.1 -5.5"/><path class="l" d="M50.1 -0.4Q51.1 5.3 57.6 5.6Q55.8 -0.7 50.1 -0.4Z"/><path d="M50.1 -0.4L56 4.3"/><path class="l" d="M60.2 -1.2Q65.5 -1.8 66.2 -7.7Q60.3 -6.5 60.2 -1.2Z"/><path d="M60.2 -1.2L64.9 -6.3"/><path class="l" d="M69.7 -2.3Q70.8 2.4 76.3 2.3Q74.5 -2.8 69.7 -2.3Z"/><path d="M69.7 -2.3L74.8 1.3"/><path class="l" d="M78.4 -3.4Q82.8 -4.1 83.1 -9.1Q78.3 -7.8 78.4 -3.4Z"/><path d="M78.4 -3.4L82 -7.8"/><path class="l" d="M88 -5Q91.9 -3 94.7 -6.9Q90.2 -8.7 88 -5Z"/><path d="M88 -5L93.3 -6.5"/><g transform="scale(-1 1)"><path d="M10,0 Q48,2 88,-5"/><path class="l" d="M17.6 0.3Q25.1 0.5 27 -7.7Q18.7 -7.1 17.6 0.3Z"/><path d="M17.6 0.3L25 -5.9"/><path class="l" d="M28.4 0.4Q29.1 7.3 36.9 8.1Q35.2 0.5 28.4 0.4Z"/><path d="M28.4 0.4L35 6.4"/><path class="l" d="M39.2 0.2Q45.5 -0.1 46.7 -7.1Q39.6 -6.1 39.2 0.2Z"/><path d="M39.2 0.2L45.1 -5.5"/><path class="l" d="M50.1 -0.4Q51.1 5.3 57.6 5.6Q55.8 -0.7 50.1 -0.4Z"/><path d="M50.1 -0.4L56 4.3"/><path class="l" d="M60.2 -1.2Q65.5 -1.8 66.2 -7.7Q60.3 -6.5 60.2 -1.2Z"/><path d="M60.2 -1.2L64.9 -6.3"/><path class="l" d="M69.7 -2.3Q70.8 2.4 76.3 2.3Q74.5 -2.8 69.7 -2.3Z"/><path d="M69.7 -2.3L74.8 1.3"/><path class="l" d="M78.4 -3.4Q82.8 -4.1 83.1 -9.1Q78.3 -7.8 78.4 -3.4Z"/><path d="M78.4 -3.4L82 -7.8"/><path class="l" d="M88 -5Q91.9 -3 94.7 -6.9Q90.2 -8.7 88 -5Z"/><path d="M88 -5L93.3 -6.5"/></g></g><path d="M0-3 3 0 0 3-3 0Z" fill="currentColor"/></svg>
         <p class="intro">Bitte gebt das Passwort ein, das ihr mit eurer Einladung bekommen habt.</p>
       </header>
 
@@ -280,86 +322,11 @@
         <label for="password">Passwort</label>
         <div class="field">
           <input id="password" name="password" type="password" autocomplete="current-password" enterkeyhint="go" required autofocus />
-          <button type="button" class="toggle" id="toggle" aria-label="Passwort anzeigen" aria-pressed="false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-          </button>
+          <button type="button" class="toggle" id="toggle" aria-pressed="false">Zeigen</button>
         </div>
         <p class="error" id="error" role="alert"></p>
         <button type="submit" id="submit">Einladung öffnen</button>
       </form>
-
-      <!-- Geöffneter Umschlag mit herausschauender Einladungskarte -->
-      <svg class="envelope" viewBox="0 0 340 300" role="img" aria-label="Geöffneter Briefumschlag mit der Einladungskarte von Jenny und Finn">
-        <defs>
-          <linearGradient id="liner" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#8ca078" />
-            <stop offset="1" stop-color="#a0b48c" />
-          </linearGradient>
-          <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#d9c08a" />
-            <stop offset="0.45" stop-color="#b8965a" />
-            <stop offset="0.7" stop-color="#e2cc98" />
-            <stop offset="1" stop-color="#a8854c" />
-          </linearGradient>
-          <radialGradient id="wax" cx="0.4" cy="0.35" r="0.7">
-            <stop offset="0" stop-color="#5d755e" />
-            <stop offset="1" stop-color="#3a4d3b" />
-          </radialGradient>
-        </defs>
-
-        <!-- geöffnete Lasche mit grünem Innenfutter -->
-        <path d="M20 130 L170 20 L320 130 Z" fill="#e6e2d3" />
-        <path d="M36 130 L170 32 L304 130 Z" fill="url(#liner)" />
-        <path d="M20 130 L170 20 L320 130" fill="none" stroke="#c9ad78" stroke-width="0.7" opacity="0.7" />
-        <g fill="#fcfbf7" fill-opacity="0.18">
-          <path d="M120 96 C126 84 140 80 146 82 C142 92 132 97 120 96Z" />
-          <path d="M196 92 C204 80 218 78 222 80 C218 90 206 95 196 92Z" />
-          <path d="M160 64 C164 54 176 50 182 52 C178 60 170 65 160 64Z" />
-        </g>
-
-        <!-- Rückseite -->
-        <rect x="20" y="130" width="300" height="160" fill="#ebe8db" />
-
-        <!-- Einladungskarte -->
-        <g class="card">
-          <rect x="66" y="56" width="208" height="190" rx="2" fill="#fdfcf8" />
-          <rect x="73" y="63" width="194" height="176" fill="none" stroke="url(#foil)" stroke-width="0.9" />
-          <rect x="77" y="67" width="186" height="168" fill="none" stroke="url(#foil)" stroke-width="0.5" opacity="0.6" />
-          <text x="170" y="84" text-anchor="middle" font-family="Jost, Avenir Next, Segoe UI, sans-serif" font-size="6.5" letter-spacing="2.6" fill="#455b46">EINLADUNG ZUR HOCHZEIT</text>
-          <g transform="translate(133 90) scale(0.31)" fill="none" stroke="url(#foil)" stroke-width="2.6" stroke-linejoin="round">
-            <path d="M120 186 L22 80 L30 34 L76 12 L120 50 L164 12 L210 34 L218 80 Z" />
-            <path d="M120 180 L28 74 L26 42 L64 20 L120 58 L176 20 L214 42 L212 74 Z" />
-            <path d="M120 184 L34 86 L38 30 L90 18 L120 54 L150 18 L202 30 L206 86 Z" />
-          </g>
-          <g fill="#8ca078" fill-opacity="0.8">
-            <path d="M141 102 C137 96 139 90 144 88 C146 93 145 98 141 102Z" />
-            <path d="M138 110 C131 108 129 102 131 98 C136 100 138 105 138 110Z" />
-            <path d="M199 102 C203 96 201 90 196 88 C194 93 195 98 199 102Z" />
-            <path d="M202 110 C209 108 211 102 209 98 C204 100 202 105 202 110Z" />
-          </g>
-          <text x="170" y="167" text-anchor="middle" font-family="Cormorant Garamond, Times New Roman, serif" font-style="italic" font-size="22" fill="#455b46">Jenny &amp; Finn</text>
-          <text x="170" y="182" text-anchor="middle" font-family="Jost, Avenir Next, Segoe UI, sans-serif" font-size="7" letter-spacing="2" fill="#455b46">29. MAI 2027</text>
-        </g>
-
-        <!-- Vorderseite: Seitenlaschen und untere Lasche -->
-        <path d="M20 130 L170 214 L20 290 Z" fill="#efece0" />
-        <path d="M320 130 L170 214 L320 290 Z" fill="#ece9dc" />
-        <path d="M20 290 L170 196 L320 290 Z" fill="#f4f2e8" />
-        <g fill="none" stroke="#c9ad78" stroke-width="0.7" opacity="0.7">
-          <path d="M20 130 L170 214 L320 130" />
-          <path d="M20 290 L170 196 L320 290" />
-        </g>
-
-        <!-- Wachssiegel -->
-        <g transform="translate(170 222)">
-          <circle r="19" fill="url(#wax)" />
-          <circle r="14.5" fill="none" stroke="#fcfbf7" stroke-opacity="0.3" stroke-width="0.8" />
-          <text y="5" text-anchor="middle" font-family="Cormorant Garamond, Times New Roman, serif" font-style="italic" font-size="14" fill="#e9efe2">J&amp;F</text>
-        </g>
-      </svg>
     </main>
 
     <script>
@@ -374,7 +341,7 @@
         const show = input.type === 'password'
         input.type = show ? 'text' : 'password'
         toggle.setAttribute('aria-pressed', String(show))
-        toggle.setAttribute('aria-label', show ? 'Passwort verbergen' : 'Passwort anzeigen')
+        toggle.textContent = show ? 'Verbergen' : 'Zeigen'
         input.focus()
       })
 
@@ -398,15 +365,15 @@
           const data = await res.json().catch(() => ({}))
           if (!res.ok) throw new Error(data.message || 'Die Anmeldung hat nicht geklappt.')
 
-          // Karte gleitet aus dem Umschlag, dann zur Einladung (inkl. #Anker wie #ablauf)
+          // Karte hebt sich, dann zur Einladung (inkl. #Anker wie #ablauf)
           document.body.classList.add('is-open')
           setTimeout(() => {
             if (data.redirect && data.redirect !== location.pathname) location.replace(data.redirect)
             else if (location.pathname.startsWith('/login')) location.replace('/' + location.hash)
             else location.reload()
-          }, reduced ? 0 : 950)
+          }, reduced ? 0 : 650)
         } catch (err) {
-          error.textContent = err.message === 'Failed to fetch' ? 'Keine Verbindung. Bitte versuche es erneut.' : err.message
+          error.textContent = err.message === 'Failed to fetch' ? 'Keine Verbindung. Bitte versucht es erneut.' : err.message
           form.classList.remove('shake')
           void form.offsetWidth
           form.classList.add('shake')

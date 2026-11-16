@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { getRsvp, saveRsvp } from '../lib/api.js'
 import { RSVP_DEADLINE } from '../content.js'
 import PanelHead from './PanelHead.jsx'
-import { Icon } from './Icons.jsx'
+import { Diamond, Monogram, Sprig } from './Ornaments.jsx'
 import { Choice, PersonCard } from './Choices.jsx'
 
 const NAME_KEY = 'jf-rsvp-name'
@@ -129,10 +129,9 @@ export default function Rsvp() {
     const persons = form.companions.length + 1
     return (
       <section className="panel done" role="status">
-        <span className="done-icon">
-          <Icon name="check" />
-        </span>
+        <Monogram />
         <h2 className="title">{form.attending ? 'Wir freuen uns auf euch!' : 'Schade, dass ihr nicht dabei seid'}</h2>
+        <Sprig />
         <p>
           {form.attending
             ? `Eure Zusage${persons > 1 ? ` für ${persons} Personen` : ''} ist bei uns angekommen. Danke!`
@@ -211,7 +210,7 @@ export default function Rsvp() {
 
             {form.companions.length < 10 && (
               <button type="button" className="add-person" onClick={addCompanion}>
-                <Icon name="plus" /> Weitere Person hinzufügen
+                Weitere Person hinzufügen
               </button>
             )}
           </div>
@@ -254,7 +253,7 @@ function LookupHint({ state }) {
   if (state === 'found')
     return (
       <span className="lookup lookup-found" id="name-hint">
-        <Icon name="check" /> Willkommen zurück! Eure Angaben sind geladen – ändert einfach, was ihr möchtet.
+        <Diamond /> Willkommen zurück! Eure Angaben sind geladen – ändert einfach, was ihr möchtet.
       </span>
     )
   return (

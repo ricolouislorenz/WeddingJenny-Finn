@@ -1,5 +1,4 @@
 import { schedule, WEDDING_DATE_LABEL } from '../content.js'
-import { Icon } from './Icons.jsx'
 import PanelHead from './PanelHead.jsx'
 
 export default function Schedule() {
@@ -11,10 +10,10 @@ export default function Schedule() {
       <ol className="timeline">
         {schedule.map((item) => (
           <li key={item.time}>
-            <time>{item.time}</time>
-            <span className="timeline-icon">
-              <Icon name={item.icon} />
-            </span>
+            <time>
+              {item.time}
+              <small>Uhr</small>
+            </time>
             <div>
               <h3 className="title">{item.title}</h3>
               <p>{item.text}</p>
