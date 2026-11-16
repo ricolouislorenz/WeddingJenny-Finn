@@ -48,7 +48,7 @@
   --error: #9b3d2e;
   --error-bg: #f8ece8;
 
-  --serif: 'Cormorant Garamond', Garamond, 'Times New Roman', serif;
+  --serif: 'Cormorant Garamond', 'Times New Roman', serif;
   --sans: 'Jost', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
 
   /* Formen & Abstände */

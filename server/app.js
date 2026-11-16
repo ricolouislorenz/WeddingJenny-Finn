@@ -123,7 +123,9 @@ async function relay(res) {
         : denied
           ? `Die Datenbank hat den Zugriff verweigert – bitte Supabase-Schlüssel und schema.sql prüfen. (${err.message || res.status})`
           : err.message || 'Datenbankfehler.'
-  return json({ message }, denied ? 502 : res.status)
+  // Kein 502/504 verwenden: Diese Codes ersetzt Cloudflare durch eine eigene HTML-Fehlerseite
+  const status = denied || res.status === 502 || res.status === 504 ? 500 : res.status
+  return json({ message }, status)
 }
 
 function adminPayload(body) {
